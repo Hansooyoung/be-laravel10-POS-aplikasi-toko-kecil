@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user', function (Blueprint $table) {
+        Schema::create('voucher', function (Blueprint $table) {
             $table->id();
-            $table->string('nama',50);
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->enum('role',['user','admin','super']);
-            $table->rememberToken();
+            $table->string('nama_voucher');
+            $table->bigInteger('harga_point');
+            $table->enum('jenis_voucher',['persen','nominal']);
+            $table->enum('status',['aktif','kadaluarsa']);
+            $table->double('nilai_voucher');
+            $table->double('min_pembelian');
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('voucher');
     }
 };

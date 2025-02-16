@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user', function (Blueprint $table) {
+        Schema::create('pembelian', function (Blueprint $table) {
             $table->id();
-            $table->string('nama',50);
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->enum('role',['user','admin','super']);
-            $table->rememberToken();
+            $table->date('tanggal_pembelian');
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('vendor_id');
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('user');
+            $table->foreign('vendor_id')->references('id')->on('vendor');
+
         });
     }
 
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('pembelian');
     }
 };
