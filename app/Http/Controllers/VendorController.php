@@ -2,65 +2,71 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\vendor;
-use App\Http\Requests\StorevendorRequest;
-use App\Http\Requests\UpdatevendorRequest;
+use App\Models\Vendor;
+use Illuminate\Http\Request;
 
 class VendorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Ambil semua vendor
     public function index()
     {
-        //
+        return response()->json(Vendor::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // Simpan vendor baru
+    public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nama_vendor' => 'required|string|max:255|unique:vendor,nama_vendor,',
+            'alamat' => 'required|string',
+            'no_hp' => 'required|string|max:15', // Validasi nomor HP
+        ]);
+
+        $vendor = Vendor::create($validated);
+
+        return response()->json(['message' => 'Vendor berhasil ditambahkan', 'vendor' => $vendor], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorevendorRequest $request)
+    // Tampilkan vendor berdasarkan ID
+    public function show($id)
     {
-        //
+        $vendor = Vendor::find($id);
+
+        if (!$vendor) {
+            return response()->json(['message' => 'Vendor tidak ditemukan'], 404);
+        }
+
+        return response()->json($vendor);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(vendor $vendor)
+    // Update vendor berdasarkan ID
+    public function update(Request $request, $id)
     {
-        //
+        $vendor = Vendor::findOrFail($id);
+
+        $request->validate([
+            'nama_vendor' => 'required|string|unique:vendor,nama_vendor,' . $vendor->id,
+            'alamat' => 'required|string',
+            'no_hp' => 'required|string',
+        ]);
+
+        $vendor->update($request->all());
+
+        return response()->json(['message' => 'Vendor berhasil diperbarui', 'vendor' => $vendor]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(vendor $vendor)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatevendorRequest $request, vendor $vendor)
+    // Hapus vendor berdasarkan ID
+    public function destroy($id)
     {
-        //
-    }
+        $vendor = Vendor::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(vendor $vendor)
-    {
-        //
+        if (!$vendor) {
+            return response()->json(['message' => 'Vendor tidak ditemukan'], 404);
+        }
+
+        $vendor->delete();
+
+        return response()->json(['message' => 'Vendor berhasil dihapus']);
     }
 }

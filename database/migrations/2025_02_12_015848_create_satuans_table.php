@@ -11,20 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kategori', function (Blueprint $table) {
+        Schema::create('satuan', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_kategori')->unique();
-            $table->decimal('profit_persen', 5, 2)->default(10); // Default 10%
+            $table->string('nama_satuan');
+            $table->integer('isi');
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('kategori');
+        Schema::dropIfExists('satuan');
     }
 };
