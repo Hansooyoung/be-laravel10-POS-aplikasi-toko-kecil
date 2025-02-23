@@ -16,12 +16,12 @@ class Barang extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'kode_barang', 'kategori_id', 'user_id', 'vendor_id',
-        'nama_barang', 'status', 'harga_jual', // Hapus 'satuan' karena tidak ada di tabel
+        'kode_barang', 'kategori_id', 'user_id', 'vendor_id','barcode',
+        'nama_barang','profit_persen', 'status',// Hapus 'satuan' karena tidak ada di tabel
         'harga_beli', 'gambar', 'stok'
     ];
 
-    protected $appends = ['harga_jual']; 
+    protected $appends = ['harga_jual'];
 
     // Relasi ke kategori
     public function kategori()
@@ -50,7 +50,8 @@ class Barang extends Model
     // Harga jual otomatis berdasarkan harga beli dan profit kategori
     public function getHargaJualAttribute()
     {
-        $profitPersen = $this->kategori->profit_persen / 100;
+        $profitPersen = $this->profit_persen / 100; // Ambil dari tabel barang
         return $this->harga_beli + ($this->harga_beli * $profitPersen);
     }
+
 }

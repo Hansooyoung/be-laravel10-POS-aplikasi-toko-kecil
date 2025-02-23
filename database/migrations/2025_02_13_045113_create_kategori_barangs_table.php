@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('kategori', function (Blueprint $table) {
             $table->id();
             $table->string('nama_kategori')->unique();
-            $table->decimal('profit_persen', 5, 2)->default(10); // Default 10%
+
             $table->timestamps();
         });
     }

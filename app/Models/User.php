@@ -51,4 +51,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Barang::class, 'user_id');
     }
+    public function pembelian()
+    {
+        return $this->hasMany(Pembelian::class, 'user_id');
+    }
 }

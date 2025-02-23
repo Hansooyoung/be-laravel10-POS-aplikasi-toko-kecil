@@ -6,6 +6,7 @@ use App\Models\Barang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class BarangController extends Controller
 {
@@ -22,6 +23,7 @@ public function index()
             'nama_barang' => $item->nama_barang,
             'status' => $item->status,
             'harga_jual' => $item->harga_jual,
+            'profit_persen' => $item->profit_persen,
             'harga_beli' => $item->harga_beli,
             'stok' => $item->stok,
             'kategori' => $item->kategori->nama_kategori,
@@ -56,6 +58,7 @@ public function index()
             'nama_barang' => $barang->nama_barang,
             'status' => $barang->status,
             'harga_jual' => $barang->harga_jual,
+            'profit_persen' => $barang->profit_persen,
             'harga_beli' => $barang->harga_beli,
             'stok' => $barang->stok,
             'kategori' => $barang->kategori->nama_kategori,
@@ -65,6 +68,7 @@ public function index()
     }
 
     // ✅ STORE: Tambah barang baru
+
     public function store(Request $request)
     {
         try {
@@ -72,9 +76,16 @@ public function index()
             $validated = $request->validate([
                 'kategori_id' => 'required|exists:kategori,id',
                 'vendor_id' => 'required|exists:vendor,id',
-                'nama_barang' => 'required|string|max:255',
+                'nama_barang' => [
+                    'required', 'string', 'max:255',
+                    Rule::unique('barang')->where(function ($query) use ($request) {
+                        return $query->where('vendor_id', $request->vendor_id);
+                    })
+                ],
+                'barcode' => 'required|string|max:50|unique:barang,barcode', // Barcode wajib diisi & unik
                 'status' => 'required|in:aktif,tidak_aktif',
-                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar
+                'profit_persen' => 'required|numeric|min:0|max:100',
+                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
             // Ambil user yang sedang login
@@ -86,7 +97,6 @@ public function index()
             // Handle file upload
             $gambarPath = null;
             if ($request->hasFile('gambar') && $request->file('gambar')->isValid()) {
-                // Simpan gambar ke public disk
                 $gambarPath = $request->file('gambar')->store('barang_images', 'public');
             }
 
@@ -94,28 +104,41 @@ public function index()
             $barang = Barang::create([
                 'kode_barang' => $kode_barang,
                 'kategori_id' => $validated['kategori_id'],
-                'user_id' => $user_id, // Ambil dari user yang sedang login
+                'user_id' => $user_id,
                 'vendor_id' => $validated['vendor_id'],
+                'barcode' => $validated['barcode'], // Simpan barcode
                 'nama_barang' => $validated['nama_barang'],
                 'status' => $validated['status'],
-                'harga_beli' => 0, // Default harga beli 0
-                'harga_jual' => 0, // Harga jual dihitung dari harga beli
-                'stok' => 0, // Stok awal 0
-                'gambar' => $gambarPath, // Store the image path
+                'profit_persen' => $validated['profit_persen'],
+                'harga_beli' => 0,
+                'stok' => 0,
+                'gambar' => $gambarPath,
             ]);
 
             return response()->json([
                 'message' => 'Barang berhasil ditambahkan',
-                'barang' => $barang
+                'barang' => [
+                    'kode_barang' => $barang->kode_barang,
+                    'barcode' => $barang->barcode,
+                    'nama_barang' => $barang->nama_barang,
+                    'status' => $barang->status,
+                    'harga_jual' => $barang->harga_jual, // Harga jual otomatis dari accessor
+                    'harga_beli' => $barang->harga_beli,
+                    'stok' => $barang->stok,
+                    'kategori' => $barang->kategori->nama_kategori,
+                    'user' => $barang->user->nama,
+                    'vendor' => $barang->vendor->nama_vendor,
+                ]
             ], 201);
 
         } catch (\Exception $e) {
-            // Menangani error dan mengembalikan response yang sesuai
             return response()->json([
                 'error' => 'Gagal menambahkan barang: ' . $e->getMessage()
             ], 500);
         }
     }
+
+
 
     // ✅ UPDATE: Edit data barang
     public function update(Request $request, $kode_barang)

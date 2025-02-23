@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\PembelianController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VendorController;
@@ -13,6 +14,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('jwt.auth'
 
 // Middleware untuk semua user yang sudah login
 Route::middleware('jwt.auth')->group(function () {
+    Route::get('/user', [AuthController::class, 'user']);
+
     // Semua user bisa melihat daftar vendor
     Route::get('/vendor', [VendorController::class, 'index']);
     Route::get('/kategori', [KategoriController::class, 'index']);
@@ -35,5 +38,9 @@ Route::middleware('jwt.auth')->group(function () {
         Route::post('/barang', [BarangController::class, 'store']); // 📌 POST tambah barang
         Route::put('/barang/{kode_barang}', [BarangController::class, 'update']); // 📌 PUT update barang
         Route::delete('/barang/{kode_barang}', [BarangController::class, 'destroy']); // 📌 DELETE soft delete barang
+
+        Route::get('/pembelian', [PembelianController::class, 'index']); // 📌 GET daftar pembelian
+        Route::get('/pembelian/{id}', [PembelianController::class, 'show']); // 📌 GET detail pembelian
+        Route::post('/pembelian', [PembelianController::class, 'store']); // 📌 POST tambah pembelian
     });
 });

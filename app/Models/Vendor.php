@@ -12,4 +12,9 @@ class Vendor extends Model
     protected $table = 'vendor';
 
     protected $fillable = ['nama_vendor', 'alamat', 'no_hp'];
+
+    public function pembelian()
+    {
+        return $this->hasMany(Pembelian::class, 'vendor_id');
+    }
 }

@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             [
                 'nama' => 'Super Admin',
                 'email' => 'super@gmail.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('super123'),
                 'role' => 'super',
                 'remember_token' => null,
                 'created_at' => now(),
@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             [
                 'nama' => 'Admin User',
                 'email' => 'admin@gmail.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('admin123'),
                 'role' => 'admin',
                 'remember_token' => null,
                 'created_at' => now(),
@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             [
                 'nama' => 'Regular User',
                 'email' => 'user@gmail.com',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('user123'),
                 'role' => 'user',
                 'remember_token' => null,
                 'created_at' => now(),
@@ -48,10 +48,10 @@ class DatabaseSeeder extends Seeder
 
         // Seed Kategori
         Kategori::insert([
-            ['nama_kategori' => 'Makanan', 'profit_persen' => 10.0, 'created_at' => now(), 'updated_at' => now()],
-            ['nama_kategori' => 'Minuman', 'profit_persen' => 12.5, 'created_at' => now(), 'updated_at' => now()],
-            ['nama_kategori' => 'Alat Tulis', 'profit_persen' => 8.0, 'created_at' => now(), 'updated_at' => now()],
-            ['nama_kategori' => 'Elektronik', 'profit_persen' => 15.0, 'created_at' => now(), 'updated_at' => now()],
+            ['nama_kategori' => 'Makanan',  'created_at' => now(), 'updated_at' => now()],
+            ['nama_kategori' => 'Minuman',  'created_at' => now(), 'updated_at' => now()],
+            ['nama_kategori' => 'Alat Tulis',  'created_at' => now(), 'updated_at' => now()],
+            ['nama_kategori' => 'Elektronik', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         // Seed Vendor

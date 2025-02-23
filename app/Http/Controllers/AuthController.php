@@ -8,32 +8,38 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+
+    public function user(Request $request)
 {
-    // Validasi input
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|string',
-    ]);
-
-    $credentials = $request->only('email', 'password');
-
-    try {
-        if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['message' => 'Email atau password salah'], 401);
-        }
-    } catch (JWTException $e) {
-        return response()->json(['message' => 'Gagal membuat token'], 500);
-    }
-
-    $user = auth()->user();
-
-    return response()->json([
-        'message' => 'Login berhasil',
-        'user' => $user,
-        'token' => $token
-    ], 200);
+    return response()->json(auth()->user());
 }
+
+    public function login(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        $credentials = $request->only('email', 'password');
+
+        try {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json(['message' => 'Email atau password salah'], 401);
+            }
+        } catch (JWTException $e) {
+            return response()->json(['message' => 'Gagal membuat token'], 500);
+        }
+
+        $user = auth()->user();
+
+        return response()->json([
+            'message' => 'Login berhasil',
+            'user' => $user,
+            'token' => $token
+        ], 200);
+    }
 
 
     public function logout(Request $request)
