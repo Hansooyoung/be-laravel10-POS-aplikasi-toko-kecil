@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('satuan', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_satuan');
-            $table->integer('isi');
+            $table->string('nama_satuan', 20)->unique(); // Contoh: "kg", "liter", "pcs", dll.
             $table->timestamps();
         });
     }

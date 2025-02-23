@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('kategori_id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('vendor_id'); // Tambah vendor_id
+            $table->unsignedBigInteger('satuan_id',);
             $table->string('barcode',50)->unique();
             $table->string('nama_barang');
             $table->enum('status',['aktif','tidak_aktif']);
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->integer('stok');
             $table->softDeletes();
             $table->foreign('user_id')->references('id')->on('user');
+            $table->foreign('satuan_id')->references('id')->on('satuan');
             $table->foreign('kategori_id')->references('id')->on('kategori');
             $table->foreign('vendor_id')->references('id')->on('vendor'); // Foreign key vendor
             $table->timestamps();

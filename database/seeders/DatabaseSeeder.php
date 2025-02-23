@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Satuan;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Kategori;
@@ -52,6 +53,12 @@ class DatabaseSeeder extends Seeder
             ['nama_kategori' => 'Minuman',  'created_at' => now(), 'updated_at' => now()],
             ['nama_kategori' => 'Alat Tulis',  'created_at' => now(), 'updated_at' => now()],
             ['nama_kategori' => 'Elektronik', 'created_at' => now(), 'updated_at' => now()],
+        ]);
+        Satuan::insert([
+            ['nama_satuan' => 'Pcs',  'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Dus',  'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Lusin',  'created_at' => now(), 'updated_at' => now()],
+            ['nama_satuan' => 'Kodi', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         // Seed Vendor

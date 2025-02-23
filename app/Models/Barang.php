@@ -18,7 +18,7 @@ class Barang extends Model
     protected $fillable = [
         'kode_barang', 'kategori_id', 'user_id', 'vendor_id','barcode',
         'nama_barang','profit_persen', 'status',// Hapus 'satuan' karena tidak ada di tabel
-        'harga_beli', 'gambar', 'stok'
+        'harga_beli', 'gambar', 'stok','satuan_id'
     ];
 
     protected $appends = ['harga_jual'];
@@ -40,6 +40,10 @@ class Barang extends Model
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
     }
+    public function satuan()
+    {
+        return $this->belongsTo(Satuan::class, 'satuan_id');
+    }
 
     // Relasi ke detail pembelian
     public function detailPembelian()
@@ -50,8 +54,11 @@ class Barang extends Model
     // Harga jual otomatis berdasarkan harga beli dan profit kategori
     public function getHargaJualAttribute()
     {
-        $profitPersen = $this->profit_persen / 100; // Ambil dari tabel barang
-        return $this->harga_beli + ($this->harga_beli * $profitPersen);
+        $hargaBeli = floatval($this->harga_beli);
+        $profitPersen = floatval($this->profit_persen) / 100;
+
+        return $hargaBeli + ($hargaBeli * $profitPersen);
     }
+
 
 }

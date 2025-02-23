@@ -22,6 +22,7 @@ public function index()
             'kode_barang' => $item->kode_barang,
             'nama_barang' => $item->nama_barang,
             'status' => $item->status,
+            'satuan' => $item->satuan->nama_satuan,
             'harga_jual' => $item->harga_jual,
             'profit_persen' => $item->profit_persen,
             'harga_beli' => $item->harga_beli,
@@ -57,6 +58,7 @@ public function index()
             'kode_barang' => $barang->kode_barang,
             'nama_barang' => $barang->nama_barang,
             'status' => $barang->status,
+            'satuan' => $barang->satuan->nama_satuan,
             'harga_jual' => $barang->harga_jual,
             'profit_persen' => $barang->profit_persen,
             'harga_beli' => $barang->harga_beli,
@@ -76,15 +78,16 @@ public function index()
             $validated = $request->validate([
                 'kategori_id' => 'required|exists:kategori,id',
                 'vendor_id' => 'required|exists:vendor,id',
+                'satuan_id' => 'required|exists:satuan,id',
                 'nama_barang' => [
                     'required', 'string', 'max:255',
                     Rule::unique('barang')->where(function ($query) use ($request) {
                         return $query->where('vendor_id', $request->vendor_id);
                     })
                 ],
-                'barcode' => 'required|string|max:50|unique:barang,barcode', // Barcode wajib diisi & unik
+                'barcode' => 'required|string|max:50|unique:barang,barcode',
                 'status' => 'required|in:aktif,tidak_aktif',
-                'profit_persen' => 'required|numeric|min:0|max:100',
+                'profit_persen' => 'nullable|numeric|min:0|max:100', // Bisa nullable (jika tidak diisi, default 10%)
                 'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
@@ -100,16 +103,20 @@ public function index()
                 $gambarPath = $request->file('gambar')->store('barang_images', 'public');
             }
 
+            // Set default profit_persen jika tidak dikirim
+            $profit_persen = $validated['profit_persen'] ?? 10; // Default 10%
+
             // Create barang baru
             $barang = Barang::create([
                 'kode_barang' => $kode_barang,
                 'kategori_id' => $validated['kategori_id'],
                 'user_id' => $user_id,
                 'vendor_id' => $validated['vendor_id'],
-                'barcode' => $validated['barcode'], // Simpan barcode
+                'satuan_id' => $validated['satuan_id'],
+                'barcode' => $validated['barcode'],
                 'nama_barang' => $validated['nama_barang'],
                 'status' => $validated['status'],
-                'profit_persen' => $validated['profit_persen'],
+                'profit_persen' => $profit_persen,
                 'harga_beli' => 0,
                 'stok' => 0,
                 'gambar' => $gambarPath,
@@ -121,13 +128,15 @@ public function index()
                     'kode_barang' => $barang->kode_barang,
                     'barcode' => $barang->barcode,
                     'nama_barang' => $barang->nama_barang,
+                    'satuan' => $barang->satuan->nama_satuan ?? null,
                     'status' => $barang->status,
-                    'harga_jual' => $barang->harga_jual, // Harga jual otomatis dari accessor
+                    'profit_persen' => $barang->profit_persen, 
+                    'harga_jual' => $barang->harga_jual,
                     'harga_beli' => $barang->harga_beli,
                     'stok' => $barang->stok,
-                    'kategori' => $barang->kategori->nama_kategori,
-                    'user' => $barang->user->nama,
-                    'vendor' => $barang->vendor->nama_vendor,
+                    'kategori' => $barang->kategori->nama_kategori ?? null,
+                    'user' => $barang->user->nama ?? null,
+                    'vendor' => $barang->vendor->nama_vendor ?? null,
                 ]
             ], 201);
 
@@ -137,6 +146,7 @@ public function index()
             ], 500);
         }
     }
+
 
 
 
