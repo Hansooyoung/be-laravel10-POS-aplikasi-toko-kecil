@@ -3,64 +3,74 @@
 namespace App\Http\Controllers;
 
 use App\Models\Satuan;
-use App\Http\Requests\StoreSatuanRequest;
-use App\Http\Requests\UpdateSatuanRequest;
+use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 
 class SatuanController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar satuan dengan pagination (10 per halaman).
      */
     public function index()
     {
-        //
+        $satuan = Satuan::paginate(10);
+
+        return response()->json([
+            'message' => 'Data satuan berhasil diambil',
+            'data' => $satuan
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Simpan satuan baru ke database.
      */
-    public function create()
+    public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'nama_satuan' => 'required|string|max:20|unique:satuan,nama_satuan',
+        ]);
+
+        $satuan = Satuan::create($validated);
+
+        return response()->json([
+            'message' => 'Satuan berhasil ditambahkan',
+            'data' => $satuan
+        ], 201);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Perbarui data satuan.
      */
-    public function store(StoreSatuanRequest $request)
+    public function update(Request $request, Satuan $satuan)
     {
-        //
+        $validated = $request->validate([
+            'nama_satuan' => 'required|string|max:20|unique:satuan,nama_satuan,' . $satuan->id,
+        ]);
+
+        $satuan->update($validated);
+
+        return response()->json([
+            'message' => 'Satuan berhasil diperbarui',
+            'data' => $satuan
+        ]);
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Satuan $satuan)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Satuan $satuan)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateSatuanRequest $request, Satuan $satuan)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
+     * Hapus satuan dengan pengecekan relasi ke barang (restrict on delete).
      */
     public function destroy(Satuan $satuan)
     {
-        //
+        // Cek apakah satuan masih digunakan dalam tabel barang
+        if ($satuan->barang()->exists()) {
+            return response()->json([
+                'error' => 'Tidak dapat menghapus satuan, karena masih digunakan dalam barang.'
+            ], 400);
+        }
+
+        $satuan->delete();
+
+        return response()->json([
+            'message' => 'Satuan berhasil dihapus'
+        ]);
     }
 }

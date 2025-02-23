@@ -11,7 +11,7 @@ class Kategori extends Model
 
     protected $table = 'kategori';
 
-    protected $fillable = ['nama_kategori','profit_persen',];
+    protected $fillable = ['nama_kategori'];
 
     public function barang()
     {

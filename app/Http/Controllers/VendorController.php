@@ -7,66 +7,73 @@ use Illuminate\Http\Request;
 
 class VendorController extends Controller
 {
-    // Ambil semua vendor
+    /**
+     * Tampilkan daftar vendor dengan pagination (10 per halaman).
+     */
     public function index()
     {
-        return response()->json(Vendor::all());
+        $vendors = Vendor::paginate(10);
+
+        return response()->json([
+            'message' => 'Data vendor berhasil diambil',
+            'data' => $vendors
+        ]);
     }
 
-    // Simpan vendor baru
+    /**
+     * Simpan vendor baru ke database.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_vendor' => 'required|string|max:255|unique:vendor,nama_vendor,',
-            'alamat' => 'required|string',
-            'no_hp' => 'required|string|max:15', // Validasi nomor HP
+            'nama_vendor' => 'required|string|max:255|unique:vendor,nama_vendor',
+            'alamat' => 'nullable|string|max:500',
+            'no_hp' => 'nullable|string|max:15',
         ]);
 
         $vendor = Vendor::create($validated);
 
-        return response()->json(['message' => 'Vendor berhasil ditambahkan', 'vendor' => $vendor], 201);
+        return response()->json([
+            'message' => 'Vendor berhasil ditambahkan',
+            'data' => $vendor
+        ], 201);
     }
 
-    // Tampilkan vendor berdasarkan ID
-    public function show($id)
+    /**
+     * Perbarui data vendor.
+     */
+    public function update(Request $request, Vendor $vendor)
     {
-        $vendor = Vendor::find($id);
-
-        if (!$vendor) {
-            return response()->json(['message' => 'Vendor tidak ditemukan'], 404);
-        }
-
-        return response()->json($vendor);
-    }
-
-    // Update vendor berdasarkan ID
-    public function update(Request $request, $id)
-    {
-        $vendor = Vendor::findOrFail($id);
-
-        $request->validate([
-            'nama_vendor' => 'required|string|unique:vendor,nama_vendor,' . $vendor->id,
-            'alamat' => 'required|string',
-            'no_hp' => 'required|string',
+        $validated = $request->validate([
+            'nama_vendor' => 'required|string|max:255|unique:vendor,nama_vendor,' . $vendor->id,
+            'alamat' => 'nullable|string|max:500',
+            'no_hp' => 'nullable|string|max:15',
         ]);
 
-        $vendor->update($request->all());
+        $vendor->update($validated);
 
-        return response()->json(['message' => 'Vendor berhasil diperbarui', 'vendor' => $vendor]);
+        return response()->json([
+            'message' => 'Vendor berhasil diperbarui',
+            'data' => $vendor
+        ]);
     }
 
-
-    // Hapus vendor berdasarkan ID
-    public function destroy($id)
+    /**
+     * Hapus vendor dengan pengecekan relasi ke pembelian (restrict on delete).
+     */
+    public function destroy(Vendor $vendor)
     {
-        $vendor = Vendor::find($id);
-
-        if (!$vendor) {
-            return response()->json(['message' => 'Vendor tidak ditemukan'], 404);
+        // Cek apakah vendor masih digunakan dalam tabel pembelian
+        if ($vendor->pembelian()->exists()) {
+            return response()->json([
+                'error' => 'Tidak dapat menghapus vendor, karena masih digunakan dalam transaksi pembelian.'
+            ], 400);
         }
 
         $vendor->delete();
 
-        return response()->json(['message' => 'Vendor berhasil dihapus']);
+        return response()->json([
+            'message' => 'Vendor berhasil dihapus'
+        ]);
     }
 }

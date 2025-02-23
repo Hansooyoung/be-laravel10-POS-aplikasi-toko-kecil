@@ -2,69 +2,74 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Kategori;
 use Illuminate\Http\Request;
 
 class KategoriController extends Controller
 {
-    // Ambil semua kategori
+    /**
+     * Tampilkan daftar kategori dengan pagination (10 per halaman).
+     */
     public function index()
     {
-        return response()->json(Kategori::all());
+        $kategori = Kategori::paginate(10);
+
+        return response()->json([
+            'message' => 'Data kategori berhasil diambil',
+            'data' => $kategori
+        ]);
     }
 
-    // Simpan kategori baru
+    /**
+     * Simpan kategori baru ke database.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nama_kategori' => 'required|string|max:255|unique:kategori,nama_kategori',
-            'profit_persen' => 'required|numeric|min:0|max:100', // Tambah validasi profit
         ]);
 
         $kategori = Kategori::create($validated);
 
-        return response()->json(['message' => 'Kategori berhasil ditambahkan', 'kategori' => $kategori], 201);
+        return response()->json([
+            'message' => 'Kategori berhasil ditambahkan',
+            'data' => $kategori
+        ], 201);
     }
 
-    // Tampilkan kategori berdasarkan ID
-    public function show($id)
+    /**
+     * Perbarui data kategori.
+     */
+    public function update(Request $request, Kategori $kategori)
     {
-        $kategori = Kategori::with('barang')->find($id);
-
-        if (!$kategori) {
-            return response()->json(['message' => 'Kategori tidak ditemukan'], 404);
-        }
-
-        return response()->json($kategori);
-    }
-
-    // Update kategori berdasarkan ID
-    public function update(Request $request, $id)
-    {
-        $kategori = Kategori::findOrFail($id);
-
         $validated = $request->validate([
-            'nama_kategori' => 'sometimes|required|string|max:255|unique:kategori,nama_kategori,' . $kategori->id,
-            'profit_persen' => 'sometimes|required|numeric|min:0|max:100', // Bisa diupdate
+            'nama_kategori' => 'required|string|max:255|unique:kategori,nama_kategori,' . $kategori->id,
         ]);
 
         $kategori->update($validated);
 
-        return response()->json(['message' => 'Kategori berhasil diperbarui', 'kategori' => $kategori]);
+        return response()->json([
+            'message' => 'Kategori berhasil diperbarui',
+            'data' => $kategori
+        ]);
     }
 
-    // Hapus kategori berdasarkan ID
-    public function destroy($id)
+    /**
+     * Hapus kategori dengan pengecekan relasi ke barang (restrict on delete).
+     */
+    public function destroy(Kategori $kategori)
     {
-        $kategori = Kategori::find($id);
-
-        if (!$kategori) {
-            return response()->json(['message' => 'Kategori tidak ditemukan'], 404);
+        // Cek apakah kategori masih digunakan dalam tabel barang
+        if ($kategori->barang()->exists()) {
+            return response()->json([
+                'error' => 'Tidak dapat menghapus kategori, karena masih digunakan dalam barang.'
+            ], 400);
         }
 
         $kategori->delete();
 
-        return response()->json(['message' => 'Kategori berhasil dihapus']);
+        return response()->json([
+            'message' => 'Kategori berhasil dihapus'
+        ]);
     }
 }
