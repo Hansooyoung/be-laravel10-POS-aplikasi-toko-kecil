@@ -4,15 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Kategori;
 use Illuminate\Http\Request;
-
+use Symfony\Component\HttpFoundation\Response;
 class KategoriController extends Controller
 {
-    /**
-     * Tampilkan daftar kategori dengan pagination (10 per halaman).
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $kategori = Kategori::paginate(10);
+        $query = Kategori::query();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where('nama_kategori', 'LIKE', '%' . $request->search . '%');
+        }
+
+        $kategori = $query->paginate(10);
 
         return response()->json([
             'message' => 'Data kategori berhasil diambil',
@@ -20,9 +23,8 @@ class KategoriController extends Controller
         ]);
     }
 
-    /**
-     * Simpan kategori baru ke database.
-     */
+
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -37,9 +39,21 @@ class KategoriController extends Controller
         ], 201);
     }
 
-    /**
-     * Perbarui data kategori.
-     */
+    public function show($id)
+    {
+        $kategori = Kategori::find($id);
+
+        if (!$kategori) {
+            return response()->json([
+                'message' => 'Kategori tidak ditemukan'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json([
+            'message' => 'Kategori berhasil ditemukan',
+            'data' => $kategori
+        ], Response::HTTP_OK);
+    }
     public function update(Request $request, Kategori $kategori)
     {
         $validated = $request->validate([
@@ -57,19 +71,21 @@ class KategoriController extends Controller
     /**
      * Hapus kategori dengan pengecekan relasi ke barang (restrict on delete).
      */
-    public function destroy(Kategori $kategori)
+    public function destroy($id)
     {
-        // Cek apakah kategori masih digunakan dalam tabel barang
+        $kategori = Kategori::find($id);
+
+        if (!$kategori) {
+            return response()->json(['message' => 'kategori tidak ditemukan.'], Response::HTTP_NOT_FOUND);
+        }
+        // Cek apakah ada barang_inventaris yang terkait
         if ($kategori->barang()->exists()) {
             return response()->json([
-                'error' => 'Tidak dapat menghapus kategori, karena masih digunakan dalam barang.'
-            ], 400);
+                'message' => 'kategori tidak dapat dihapus karena masih digunakan .'
+            ], Response::HTTP_BAD_REQUEST);
         }
-
         $kategori->delete();
 
-        return response()->json([
-            'message' => 'Kategori berhasil dihapus'
-        ]);
+        return response()->json(['message' => 'kategori berhasil dihapus.'], Response::HTTP_OK);
     }
 }

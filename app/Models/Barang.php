@@ -16,42 +16,44 @@ class Barang extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'kode_barang', 'kategori_id', 'user_id', 'vendor_id','barcode',
-        'nama_barang','profit_persen', 'status',// Hapus 'satuan' karena tidak ada di tabel
-        'harga_beli', 'gambar', 'stok','satuan_id'
+        'kode_barang', 'kategori_id', 'user_id', 'satuan_id', 'diskon_id',
+        'barcode', 'nama_barang', 'status', 'profit_persen',
+        'harga_beli', 'gambar', 'stok'
     ];
 
-    protected $appends = ['harga_jual'];
+    protected $appends = ['harga_jual', 'harga_jual_diskon'];
 
-    // Relasi ke kategori
+    // 🔹 Relasi ke kategori
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'kategori_id');
     }
 
-    // Relasi ke user (admin yang input barang)
+    // 🔹 Relasi ke user (admin yang input barang)
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi ke vendor
-    public function vendor()
-    {
-        return $this->belongsTo(Vendor::class, 'vendor_id');
-    }
+    // 🔹 Relasi ke satuan
     public function satuan()
     {
         return $this->belongsTo(Satuan::class, 'satuan_id');
     }
 
-    // Relasi ke detail pembelian
+    // 🔹 Relasi ke diskon
+    public function diskon()
+    {
+        return $this->belongsTo(Diskon::class, 'diskon_id');
+    }
+
+    // 🔹 Relasi ke detail pembelian
     public function detailPembelian()
     {
         return $this->hasMany(DetailPembelian::class, 'kode_barang', 'kode_barang');
     }
 
-    // Harga jual otomatis berdasarkan harga beli dan profit kategori
+    // 🔹 Harga jual normal tanpa diskon
     public function getHargaJualAttribute()
     {
         $hargaBeli = floatval($this->harga_beli);
@@ -60,5 +62,19 @@ class Barang extends Model
         return $hargaBeli + ($hargaBeli * $profitPersen);
     }
 
+    // 🔹 Harga jual setelah diskon (opsional)
+    public function getHargaJualDiskonAttribute()
+    {
+        if (!$this->diskon) {
+            return null;
+        }
 
+        $hargaJual = $this->getHargaJualAttribute();
+
+        if ($this->diskon->jenis_diskon == 'persen') {
+            return $hargaJual - ($hargaJual * ($this->diskon->nilai_diskon / 100));
+        } else {
+            return max(0, $hargaJual - $this->diskon->nilai_diskon);
+        }
+    }
 }

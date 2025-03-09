@@ -10,66 +10,100 @@ use Illuminate\Validation\Rule;
 
 class BarangController extends Controller
 {
-// ✅ INDEX: Ambil daftar barang (paginate 10)
-public function index()
-{
-    // Ambil data barang dengan kategori, user, dan vendor menggunakan pagination
-    $barang = Barang::with(['kategori', 'user', 'vendor'])->paginate(10);
 
-    // Ambil hanya data yang diperlukan dan ubah menjadi array
-    $barangData = $barang->map(function ($item) {
-        return [
-            'kode_barang' => $item->kode_barang,
-            'nama_barang' => $item->nama_barang,
-            'status' => $item->status,
-            'satuan' => $item->satuan->nama_satuan,
-            'harga_jual' => $item->harga_jual,
-            'profit_persen' => $item->profit_persen,
-            'harga_beli' => $item->harga_beli,
-            'stok' => $item->stok,
-            'kategori' => $item->kategori->nama_kategori,
-            'user' => $item->user->nama,
-            'vendor' => $item->vendor->nama_vendor,
-        ];
-    });
-
-    return response()->json([
-        'data' => $barangData, // Mengembalikan data barang yang sudah diproses
-        'pagination' => [
-            'total' => $barang->total(),
-            'per_page' => $barang->perPage(),
-            'current_page' => $barang->currentPage(),
-            'last_page' => $barang->lastPage(),
-            'from' => $barang->firstItem(),
-            'to' => $barang->lastItem(),
-        ]
-    ]);
-}
-
-
-    // ✅ SHOW: Tampilkan detail barang
-    public function show($kode_barang)
+    public function index(Request $request)
     {
-        $barang = Barang::with(['kategori', 'user', 'vendor'])
-            ->where('kode_barang', $kode_barang)
-            ->firstOrFail();
+        $query = Barang::with([
+            'kategori',
+            'user',
+            'diskon'
+        ]);
+
+        // 🔹 Filter berdasarkan nama kategori
+        if ($request->has('nama_kategori') && !empty($request->nama_kategori)) {
+            $query->whereHas('kategori', function ($q) use ($request) {
+                $q->where('nama_kategori', $request->nama_kategori);
+            });
+        }
+
+        // 🔹 Filter pencarian nama_barang atau barcode
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where(function ($q) use ($request) {
+                $q->where('nama_barang', 'LIKE', '%' . $request->search . '%')
+                  ->orWhere('barcode', 'LIKE', '%' . $request->search . '%');
+            });
+        }
+
+        $barang = $query->paginate(10);
+
+        $barangData = $barang->map(function ($item) {
+            return [
+                'kode_barang' => $item->kode_barang,
+                'barcode' => $item->barcode,
+                'nama_barang' => $item->nama_barang,
+                'gambar' => $item->gambar ? url('storage/' . $item->gambar) : null,
+                'status' => $item->status,
+                'satuan' => $item->satuan->nama_satuan,
+                'profit_persen' => $item->profit_persen,
+                'harga_jual' => $item->harga_jual,
+                'harga_jual_diskon' => $item->harga_jual_diskon,
+                'harga_beli' => $item->harga_beli,
+                'stok' => $item->stok,
+                'kategori' => $item->kategori->nama_kategori,
+                'user' => $item->user->nama,
+            ];
+        });
 
         return response()->json([
-            'kode_barang' => $barang->kode_barang,
-            'nama_barang' => $barang->nama_barang,
-            'status' => $barang->status,
-            'satuan' => $barang->satuan->nama_satuan,
-            'harga_jual' => $barang->harga_jual,
-            'profit_persen' => $barang->profit_persen,
-            'harga_beli' => $barang->harga_beli,
-            'stok' => $barang->stok,
-            'kategori' => $barang->kategori->nama_kategori,
-            'user' => $barang->user->nama,
-            'vendor' => $barang->vendor->nama_vendor,
+            'data' => $barangData,
+            'pagination' => [
+                'total' => $barang->total(),
+                'per_page' => $barang->perPage(),
+                'current_page' => $barang->currentPage(),
+                'last_page' => $barang->lastPage(),
+                'from' => $barang->firstItem(),
+                'to' => $barang->lastItem(),
+            ]
         ]);
     }
 
-    // ✅ STORE: Tambah barang baru
+
+    public function show($kode_barang)
+    {
+        $barang = Barang::with([
+            'kategori',
+            'user',
+            'diskon' // 🔹 Tambahkan relasi diskon
+        ])->where('kode_barang', $kode_barang)->firstOrFail();
+
+        // Siapkan respons
+        $response = [
+            'kode_barang' => $barang->kode_barang,
+            'nama_barang' => $barang->nama_barang,
+            'barcode' => $barang->barcode,
+            'gambar' => $barang->gambar ? 'http://localhost:8000/storage/' . $barang->gambar : null, // 🔹 Mengubah path gambar menjadi URL
+            'status' => $barang->status,
+            'satuan' => $barang->satuan->nama_satuan,
+            'harga_beli' => $barang->harga_beli,
+            'harga_jual' => $barang->harga_jual,
+            'harga_jual_diskon' => $barang->harga_jual_diskon,
+            'profit_persen' => $barang->profit_persen,
+            'stok' => $barang->stok,
+            'kategori' => $barang->kategori->nama_kategori,
+            'user' => $barang->user->nama,
+
+        ];
+
+        // 🔹 Tambahkan `nama_diskon` jika barang memiliki diskon
+        if ($barang->diskon_id) {
+            $response['nama_diskon'] = $barang->diskon->nama_diskon;
+        }
+
+        return response()->json($response);
+    }
+
+
+
 
     public function store(Request $request)
     {
@@ -77,42 +111,35 @@ public function index()
             // Validasi input
             $validated = $request->validate([
                 'kategori_id' => 'required|exists:kategori,id',
-                'vendor_id' => 'required|exists:vendor,id',
                 'satuan_id' => 'required|exists:satuan,id',
-                'nama_barang' => [
-                    'required', 'string', 'max:255',
-                    Rule::unique('barang')->where(function ($query) use ($request) {
-                        return $query->where('vendor_id', $request->vendor_id);
-                    })
-                ],
+                'diskon_id' => 'nullable|exists:diskon,id',
+                'nama_barang' => 'required|string|max:255|unique:barang,nama_barang',
                 'barcode' => 'required|string|max:50|unique:barang,barcode',
-                'status' => 'required|in:aktif,tidak_aktif',
-                'profit_persen' => 'nullable|numeric|min:0|max:100', // Bisa nullable (jika tidak diisi, default 10%)
+                'status' => 'required|in:Aktif,Tidak',
+                'profit_persen' => 'nullable|numeric|min:0|max:100',
                 'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
 
-            // Ambil user yang sedang login
             $user_id = auth()->id();
 
             // Generate kode barang
             $kode_barang = $this->generateKodeBarang($validated['kategori_id']);
 
-            // Handle file upload
+            // Upload gambar jika ada
             $gambarPath = null;
             if ($request->hasFile('gambar') && $request->file('gambar')->isValid()) {
                 $gambarPath = $request->file('gambar')->store('barang_images', 'public');
             }
 
-            // Set default profit_persen jika tidak dikirim
-            $profit_persen = $validated['profit_persen'] ?? 10; // Default 10%
+            $profit_persen = $validated['profit_persen'] ?? 10;
 
-            // Create barang baru
+            // Simpan barang dengan diskon jika ada
             $barang = Barang::create([
                 'kode_barang' => $kode_barang,
                 'kategori_id' => $validated['kategori_id'],
                 'user_id' => $user_id,
-                'vendor_id' => $validated['vendor_id'],
                 'satuan_id' => $validated['satuan_id'],
+                'diskon_id' => $validated['diskon_id'] ?? null,
                 'barcode' => $validated['barcode'],
                 'nama_barang' => $validated['nama_barang'],
                 'status' => $validated['status'],
@@ -130,19 +157,25 @@ public function index()
                     'nama_barang' => $barang->nama_barang,
                     'satuan' => $barang->satuan->nama_satuan ?? null,
                     'status' => $barang->status,
-                    'profit_persen' => $barang->profit_persen, 
+                    'profit_persen' => $barang->profit_persen,
                     'harga_jual' => $barang->harga_jual,
+                    'harga_jual_diskon' => $barang->harga_jual_diskon,
                     'harga_beli' => $barang->harga_beli,
                     'stok' => $barang->stok,
                     'kategori' => $barang->kategori->nama_kategori ?? null,
                     'user' => $barang->user->nama ?? null,
-                    'vendor' => $barang->vendor->nama_vendor ?? null,
                 ]
             ], 201);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Gagal menambahkan barang: ' . $e->getMessage()
+                'message' => 'Gagal menambahkan barang',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -150,35 +183,68 @@ public function index()
 
 
 
-    // ✅ UPDATE: Edit data barang
+
+
+
+
+
     public function update(Request $request, $kode_barang)
     {
         $barang = Barang::where('kode_barang', $kode_barang)->firstOrFail();
 
-        // Validasi input
+        // Validasi data termasuk gambar
         $validated = $request->validate([
-            'nama_barang' => 'sometimes|required|string|max:255',
-            'status' => 'sometimes|required|in:aktif,tidak_aktif',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar
+            'kategori_id' => 'sometimes|required|exists:kategori,id',
+            'satuan_id' => 'sometimes|required|exists:satuan,id',
+            'diskon_id' => 'sometimes|nullable|exists:diskon,id',
+            'nama_barang' => [
+                'sometimes', 'required', 'string', 'max:255',
+                Rule::unique('barang', 'nama_barang')->ignore($barang->kode_barang, 'kode_barang')
+            ],
+            'barcode' => [
+                'sometimes', 'required', 'string', 'max:50',
+                Rule::unique('barang', 'barcode')->ignore($barang->kode_barang, 'kode_barang')
+            ],
+            'status' => 'sometimes|required|in:Aktif,Tidak',
+            'profit_persen' => 'sometimes|nullable|numeric|min:0|max:100',
+            'gambar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Jika ada gambar baru, hapus gambar lama dan simpan gambar baru
+        // Cek apakah gambar baru diunggah
         if ($request->hasFile('gambar')) {
             // Hapus gambar lama jika ada
-            if ($barang->gambar) {
+            if ($barang->gambar && Storage::disk('public')->exists($barang->gambar)) {
                 Storage::disk('public')->delete($barang->gambar);
             }
 
             // Simpan gambar baru
             $gambarPath = $request->file('gambar')->store('barang_images', 'public');
-            $validated['gambar'] = $gambarPath;  // Update gambar dengan path baru
+            $validated['gambar'] = $gambarPath;
+        } else {
+            // Jika tidak ada gambar baru, tetap gunakan gambar lama
+            $validated['gambar'] = $barang->gambar;
+        }
+
+        // Debug: Cek apakah data valid sebelum update
+        if (empty($validated)) {
+            return response()->json([
+                'message' => 'Tidak ada data yang dikirim untuk update'
+            ], 400);
         }
 
         // Update barang
         $barang->update($validated);
 
-        return response()->json(['message' => 'Barang berhasil diperbarui', 'barang' => $barang]);
+        return response()->json([
+            'message' => 'Barang berhasil diperbarui',
+            'barang' => $barang->fresh()
+        ]);
     }
+
+
+
+
+
 
     // ✅ DELETE: Soft delete barang
     public function destroy($kode_barang)

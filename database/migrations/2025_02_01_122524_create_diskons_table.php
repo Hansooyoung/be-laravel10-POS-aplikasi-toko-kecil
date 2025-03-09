@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('member', function (Blueprint $table) {
+        Schema::create('diskon', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_member');
-            $table->string('email')->unique();
-            $table->string('no_hp')->unique();
-            $table->string('password');
-            $table->bigInteger('total_point');
+            $table->string('nama_diskon', 50)->unique();
+            $table->enum('jenis_diskon',['persen','nominal']);
+            $table->decimal('nilai_diskon', 10, 2);
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_berakhir');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('member');
+        Schema::dropIfExists('diskon');
     }
 };

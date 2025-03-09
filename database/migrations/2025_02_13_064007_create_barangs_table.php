@@ -15,11 +15,11 @@ return new class extends Migration
             $table->string('kode_barang',50)->primary();
             $table->unsignedBigInteger('kategori_id');
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('vendor_id'); // Tambah vendor_id
+            $table->unsignedBigInteger('diskon_id')->nullable();
             $table->unsignedBigInteger('satuan_id',);
             $table->string('barcode',50)->unique();
             $table->string('nama_barang');
-            $table->enum('status',['aktif','tidak_aktif']);
+            $table->enum('status',['Aktif','Tidak']);
             $table->decimal('profit_persen', 5, 2)->default(10); // Default 10%
             $table->double('harga_beli')->default(0);
             $table->string('gambar')->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('user');
             $table->foreign('satuan_id')->references('id')->on('satuan');
             $table->foreign('kategori_id')->references('id')->on('kategori');
-            $table->foreign('vendor_id')->references('id')->on('vendor'); // Foreign key vendor
+            $table->foreign('diskon_id')->references('id')->on('diskon');
             $table->timestamps();
         });
     }

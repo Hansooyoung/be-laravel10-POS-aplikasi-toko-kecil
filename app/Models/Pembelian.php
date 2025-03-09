@@ -13,16 +13,18 @@ class Pembelian extends Model
 
     protected $fillable = [
         'tanggal_pembelian',
+        'tanggal_masuk',
         'user_id',
         'vendor_id',
     ];
+
     protected $appends = ['total'];
 
     /**
      * Relasi ke User (Pembelian dilakukan oleh user).
      */
     public function user()
-    {
+{
         return $this->belongsTo(User::class, 'user_id');
     }
 
@@ -42,6 +44,9 @@ class Pembelian extends Model
         return $this->hasMany(DetailPembelian::class, 'pembelian_id');
     }
 
+    /**
+     * Hitung total harga jual dari detail pembelian.
+     */
     public function getTotalAttribute()
     {
         return $this->detailPembelian->sum('sub_total');

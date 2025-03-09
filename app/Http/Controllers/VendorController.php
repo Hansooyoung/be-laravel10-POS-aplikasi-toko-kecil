@@ -4,15 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class VendorController extends Controller
 {
-    /**
-     * Tampilkan daftar vendor dengan pagination (10 per halaman).
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $vendors = Vendor::paginate(10);
+        $vendors = Vendor::query();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $vendors->where('nama_vendor', 'LIKE', '%' . $request->search . '%');
+        }
+
+        $vendors = $vendors->paginate(10);
 
         return response()->json([
             'message' => 'Data vendor berhasil diambil',
@@ -20,13 +24,10 @@ class VendorController extends Controller
         ]);
     }
 
-    /**
-     * Simpan vendor baru ke database.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_vendor' => 'required|string|max:255|unique:vendor,nama_vendor',
+            'nama_vendor' => 'required|string|max:255|unique:vendor,nama_vendor,NULL,id,deleted_at,NULL',
             'alamat' => 'nullable|string|max:500',
             'no_hp' => 'nullable|string|max:15',
         ]);
@@ -39,9 +40,20 @@ class VendorController extends Controller
         ], 201);
     }
 
-    /**
-     * Perbarui data vendor.
-     */
+    public function show($id)
+    {
+        $vendor = Vendor::find($id);
+
+        if (!$vendor){
+            return response()->json([
+                'message' => 'Vendor tidak ditemukan'
+            ],Response::HTTP_NOT_FOUND);
+        }
+        return response()->json([
+            'message' => 'Vendor berhasil ditemukan',
+            'data' => $vendor
+        ], Response::HTTP_OK);
+    }
     public function update(Request $request, Vendor $vendor)
     {
         $validated = $request->validate([
@@ -58,22 +70,17 @@ class VendorController extends Controller
         ]);
     }
 
-    /**
-     * Hapus vendor dengan pengecekan relasi ke pembelian (restrict on delete).
-     */
-    public function destroy(Vendor $vendor)
+    public function destroy($id)
     {
-        // Cek apakah vendor masih digunakan dalam tabel pembelian
-        if ($vendor->pembelian()->exists()) {
-            return response()->json([
-                'error' => 'Tidak dapat menghapus vendor, karena masih digunakan dalam transaksi pembelian.'
-            ], 400);
+        $vendor = Vendor::where('id', $id)->first();
+
+        if (!$vendor) {
+            return response()->json(['message' => 'Vendor tidak ditemukan.'], Response::HTTP_NOT_FOUND);
         }
 
         $vendor->delete();
 
-        return response()->json([
-            'message' => 'Vendor berhasil dihapus'
-        ]);
+        return response()->json(['message' => 'Vendor berhasil dihapus.'], Response::HTTP_OK);
     }
+
 }

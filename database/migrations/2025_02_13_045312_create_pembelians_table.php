@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pembelian', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal_pembelian');
+            $table->date('tanggal_masuk')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('vendor_id');
             $table->timestamps();

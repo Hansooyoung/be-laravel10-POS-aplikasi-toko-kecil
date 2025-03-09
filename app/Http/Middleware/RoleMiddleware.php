@@ -25,7 +25,7 @@ class RoleMiddleware
                 return $next($request);
             }
 
-            return response()->json(['message' => 'Akses ditolak'], 403);
+            return response()->json(['message' => 'Tidak Memiliki Akses' ], 403);
 
         } catch (TokenExpiredException $e) {
             return response()->json(['message' => 'Token kadaluarsa'], 401);

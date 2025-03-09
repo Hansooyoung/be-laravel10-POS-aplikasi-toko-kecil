@@ -17,8 +17,10 @@ return new class extends Migration
             $table->string('alamat');
             $table->string('no_hp');
             $table->timestamps();
+            $table->softDeletes(); // Tambahkan ini untuk soft delete
         });
     }
+
 
     /**
      * Reverse the migrations.

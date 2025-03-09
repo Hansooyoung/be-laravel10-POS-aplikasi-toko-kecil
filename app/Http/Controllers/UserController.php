@@ -6,20 +6,47 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
     /**
      * Tampilkan daftar user dengan pagination (10 per halaman).
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(10);
+        $query = User::query();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where('nama', 'LIKE', '%' . $request->search . '%')
+                  ->orWhere('email', 'LIKE', '%' . $request->search . '%');
+        }
+
+        $users = $query->paginate(10);
 
         return response()->json([
             'message' => 'Data user berhasil diambil',
             'data' => $users
         ]);
+    }
+
+    /**
+     * Tampilkan user berdasarkan ID.
+     */
+    public function show($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User tidak ditemukan'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json([
+            'message' => 'User berhasil ditemukan',
+            'data' => $user
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -29,7 +56,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:50',
-            'email' => 'required|email|unique:user,email',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
             'role' => 'required|in:user,admin,super',
         ]);
@@ -41,7 +68,7 @@ class UserController extends Controller
         return response()->json([
             'message' => 'User berhasil ditambahkan',
             'data' => $user
-        ], 201);
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -53,7 +80,7 @@ class UserController extends Controller
             'nama' => 'sometimes|required|string|max:50',
             'email' => [
                 'sometimes', 'required', 'email',
-                Rule::unique('user', 'email')->ignore($user->id),
+                Rule::unique('users', 'email')->ignore($user->id),
             ],
             'password' => 'nullable|string|min:6',
             'role' => 'sometimes|required|in:user,admin,super',
@@ -74,19 +101,25 @@ class UserController extends Controller
     /**
      * Hapus user dengan pengecekan relasi ke barang dan pembelian.
      */
-    public function destroy(User $user)
+    public function destroy($id)
     {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan.'], Response::HTTP_NOT_FOUND);
+        }
+
         // Cek apakah user memiliki barang atau pembelian terkait
         if ($user->barang()->exists() || $user->pembelian()->exists()) {
             return response()->json([
-                'error' => 'Tidak dapat menghapus user, karena masih memiliki data barang atau transaksi pembelian.'
-            ], 400);
+                'message' => 'Tidak dapat menghapus user, karena masih memiliki data barang atau transaksi pembelian.'
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $user->delete();
 
         return response()->json([
             'message' => 'User berhasil dihapus'
-        ]);
+        ], Response::HTTP_OK);
     }
 }
