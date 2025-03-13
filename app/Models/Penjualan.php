@@ -18,7 +18,7 @@ class Penjualan extends Model
         'tanggal_penjualan'
     ];
 
-    protected $appends = ['total_penjualan', 'total_keuntungan'];
+    protected $appends = ['total_penjualan', 'total_keuntungan','tunai','kembalian'];
 
     // 🔹 Relasi ke Member (jika ada)
     public function member()
@@ -54,5 +54,22 @@ class Penjualan extends Model
     public function getTotalKeuntunganAttribute()
     {
         return $this->detailPenjualan->sum(fn($detail) => ($detail->harga_jual - $detail->harga_beli) * $detail->jumlah);
+    }
+
+    private $tunaiInput; // Menyimpan tunai sementara
+
+    public function setTunaiAttribute($value)
+    {
+        $this->tunaiInput = $value;
+    }
+
+    public function getTunaiAttribute()
+    {
+        return $this->tunaiInput ?? 0;
+    }
+
+    public function getKembalianAttribute()
+    {
+        return max(($this->tunaiInput ?? 0) - $this->total_penjualan, 0);
     }
 }

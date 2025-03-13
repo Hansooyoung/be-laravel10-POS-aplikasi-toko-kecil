@@ -46,8 +46,8 @@ class BarangController extends Controller
                 'satuan' => $item->satuan->nama_satuan,
                 'profit_persen' => $item->profit_persen,
                 'harga_jual' => $item->harga_jual,
-                'harga_jual_diskon' => $item->harga_jual_diskon,
-                'harga_beli' => $item->harga_beli,
+                'harga_jual_diskon' => $item->harga_jual_diskon ?? 'Tidak Ada Diskon',
+                'harga_beli' => 'Rp. ' . number_format($item->harga_beli, 0, ',', '.'),
                 'stok' => $item->stok,
                 'kategori' => $item->kategori->nama_kategori,
                 'user' => $item->user->nama,
@@ -73,7 +73,7 @@ class BarangController extends Controller
         $barang = Barang::with([
             'kategori',
             'user',
-            'diskon' // 🔹 Tambahkan relasi diskon
+            'diskon'
         ])->where('kode_barang', $kode_barang)->firstOrFail();
 
         // Siapkan respons
@@ -86,7 +86,7 @@ class BarangController extends Controller
             'satuan' => $barang->satuan->nama_satuan,
             'harga_beli' => $barang->harga_beli,
             'harga_jual' => $barang->harga_jual,
-            'harga_jual_diskon' => $barang->harga_jual_diskon,
+            'harga_jual_diskon' => $barang->harga_jual_diskon ?? 'Tidak Ada Diskon',    
             'profit_persen' => $barang->profit_persen,
             'stok' => $barang->stok,
             'kategori' => $barang->kategori->nama_kategori,
@@ -94,7 +94,6 @@ class BarangController extends Controller
 
         ];
 
-        // 🔹 Tambahkan `nama_diskon` jika barang memiliki diskon
         if ($barang->diskon_id) {
             $response['nama_diskon'] = $barang->diskon->nama_diskon;
         }

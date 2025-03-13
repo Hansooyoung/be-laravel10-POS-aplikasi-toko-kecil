@@ -14,8 +14,9 @@ class MemberController extends Controller
         $query = Member::query();
 
         if ($request->has('search') && !empty($request->search)) {
-            $query->where('nama_member', 'LIKE', '%' . $request->search . '%')
-                  ->orWhere('email', 'LIKE', '%' . $request->search . '%');
+            $search = $request->search;
+            $query->where('email', 'LIKE', "%$search%")
+                  ->orWhere('no_hp', 'LIKE', "%$search%");
         }
 
         $members = $query->paginate(10);
@@ -26,14 +27,35 @@ class MemberController extends Controller
         ]);
     }
 
+
     public function store(Request $request)
     {
+        $messages = [
+            'nama_member.required' => 'Nama member wajib diisi.',
+            'nama_member.string' => 'Nama member harus berupa teks.',
+            'nama_member.max' => 'Nama member maksimal 255 karakter.',
+
+            'email.required' => 'Email wajib diisi.',
+            'email.string' => 'Email harus berupa teks.',
+            'email.email' => 'Format email tidak valid.',
+            'email.max' => 'Email maksimal 255 karakter.',
+            'email.unique' => 'Email sudah terdaftar.',
+
+            'no_hp.required' => 'Nomor HP wajib diisi.',
+            'no_hp.string' => 'Nomor HP harus berupa teks.',
+            'no_hp.max' => 'Nomor HP maksimal 15 karakter.',
+
+            'password.required' => 'Password wajib diisi.',
+            'password.string' => 'Password harus berupa teks.',
+            'password.min' => 'Password minimal 6 karakter.',
+        ];
+
         $validated = $request->validate([
             'nama_member' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:member,email',
             'no_hp' => 'required|string|max:15',
             'password' => 'required|string|min:6',
-        ]);
+        ], $messages);
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['total_point'] = 0;
@@ -45,6 +67,7 @@ class MemberController extends Controller
             'data' => $member
         ], 201);
     }
+
 
     public function show($id)
     {

@@ -4,6 +4,7 @@
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\DiskonController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\PenjualanController;
@@ -39,7 +40,9 @@ Route::middleware('jwt.auth')->group(function () {
         Route::put('/satuan/{id}', [SatuanController::class, 'update']);
         Route::delete('/satuan/{id}', [SatuanController::class, 'destroy']);
 
-
+        Route::get('/laporan-penjualan', [LaporanController::class, 'laporanPenjualan']);
+        Route::get('/laporan-penjualan-barang', [LaporanController::class, 'laporanPenjualanBarang']);
+        Route::get('/laporan-pembelian', [LaporanController::class, 'laporanPembelian']);
 
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
@@ -69,6 +72,7 @@ Route::middleware('jwt.auth')->group(function () {
         Route::get('/pembelian', [PembelianController::class, 'index']);
         Route::get('/pembelian/{id}', [PembelianController::class, 'show']);
         Route::post('/pembelian', [PembelianController::class, 'store']);
+        Route::get('/penjualan/struk/{id}', [PenjualanController::class, 'struk']);
 
         Route::get('/penjualan', [PenjualanController::class, 'index']); // List semua penjualan
         Route::get('/penjualan/{id}', [PenjualanController::class, 'show']); // Detail penjualan

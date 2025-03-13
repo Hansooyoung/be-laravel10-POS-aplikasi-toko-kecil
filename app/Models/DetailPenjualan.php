@@ -23,7 +23,10 @@ class DetailPenjualan extends Model
     {
         return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang');
     }
-
+    public function penjualan()
+{
+    return $this->belongsTo(Penjualan::class, 'penjualan_id');
+}
     // 🔹 Subtotal = Harga Jual Final x Jumlah
     public function getSubTotalAttribute()
     {

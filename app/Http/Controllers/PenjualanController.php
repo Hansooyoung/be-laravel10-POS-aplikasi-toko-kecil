@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class PenjualanController extends Controller
 {
-    /**
-     * Tampilkan daftar penjualan dengan pagination.
-     */
+
     public function index()
     {
         $penjualan = Penjualan::with([
@@ -29,9 +27,13 @@ class PenjualanController extends Controller
                 'id' => $item->id,
                 'tanggal_penjualan' => $item->tanggal_penjualan,
                 'created_at' => $item->created_at,
-                'updated_at' => $item->total_keuntungan,
-                'total_penjualan' => 'Rp. ' . number_format($item->total_penjualan, 0, ',', '.'),
-                'total_keuntungan' => 'Rp. ' . number_format($item->total_keuntungan, 0, ',', '.'),
+                'updated_at' => $item->updated_at,
+                'tunai' => $item->tunai,
+                'kembalian' => $item->kembalian,
+                'total_penjualan' => $item->total_penjualan,
+                'total_keuntungan' => $item->total_keuntungan,
+                // 'total_penjualan' => 'Rp. ' . number_format($item->total_penjualan, 0, ',', '.'),
+                // 'total_keuntungan' => 'Rp. ' . number_format($item->total_keuntungan, 0, ',', '.'),
                 'nama_member' => $item->member->nama_member ?? 'Tidak Memiliki Member',
                 'nama_user' => $item->user->nama ?? null,
                 'detail_penjualan' => $item->detailPenjualan->map(function ($detail) {
@@ -66,23 +68,22 @@ class PenjualanController extends Controller
     public function show($id)
     {
         $penjualan = Penjualan::with(['detailPenjualan.barang'])->findOrFail($id);
-
-        // Gunakan pagination untuk detail penjualan
         $detailPenjualan = $penjualan->detailPenjualan()->paginate(10);
 
         return response()->json([
             'id' => $penjualan->id,
             'tanggal_penjualan' => $penjualan->tanggal_penjualan,
-            'total_penjualan' => 'Rp. ' . number_format($penjualan->total_penjualan, 0, ',', '.'),
-            'total_keuntungan' => 'Rp. ' . number_format($penjualan->total_keuntungan, 0, ',', '.'),
+            'total_penjualan' => $penjualan->total_penjualan,
+            'total_keuntungan' => $penjualan->total_keuntungan,
             'detail_penjualan' => $detailPenjualan->through(function ($detail) {
                 return [
                     'id' => $detail->id,
                     'kode_barang' => $detail->kode_barang,
-                    'harga_jual' => 'Rp. ' . number_format($detail->harga_jual, 0, ',', '.'),
+                    'harga_jual' => $detail->harga_jual,
                     'jumlah' => $detail->jumlah,
-                    'sub_total' => 'Rp. ' . number_format($detail->sub_total, 0, ',', '.'),
-                    'keuntungan' => 'Rp. ' . number_format($detail->keuntungan, 0, ',', '.'),
+                    'sub_total' => $detail->sub_total,
+                    'keuntungan' => $detail->keuntungan,
+                    'diskon' => $detail->diskon,
                     'nama_barang' => $detail->barang->nama_barang,
                 ];
             }),
@@ -97,14 +98,58 @@ class PenjualanController extends Controller
         ]);
     }
 
+    public function struk(Request $request, $id)
+    {
+        $penjualan = Penjualan::with([
+            'detailPenjualan.barang',
+            'member',
+            'voucher',
+            'user'
+        ])->findOrFail($id);
+
+        // Hitung total harga jika tidak ada di database
+        $totalHarga = $penjualan->total_penjualan ?? $penjualan->detailPenjualan->sum(function ($detail) {
+            return $detail->harga_jual * $detail->jumlah;
+        });
+
+        return response()->json([
+            'id' => $penjualan->id,
+            'tanggal_penjualan' => $penjualan->tanggal_penjualan,
+            'nama_kasir' => $penjualan->user?->name,
+            'total_penjualan' => $totalHarga,
+            'total_keuntungan' => $penjualan->total_keuntungan,
+            'nama_member' => $penjualan->member?->nama,
+            'nama_voucher' => $penjualan->voucher?->nama_voucher,
+            'tunai' => $request->input('tunai', 0), // Ambil dari frontend
+            'kembalian' => $request->input('kembalian', 0), // Ambil dari frontend
+            'detail_penjualan' => $penjualan->detailPenjualan->map(function ($detail) {
+                return [
+                    'id' => $detail->id,
+                    'kode_barang' => $detail->kode_barang,
+                    'harga_jual' => $detail->harga_jual,
+                    'jumlah' => $detail->jumlah,
+                    'sub_total' => $detail->sub_total,
+                    'keuntungan' => $detail->keuntungan,
+                    'diskon' => $detail->diskon,
+                    'nama_barang' => $detail->barang->nama_barang,
+                ];
+            }),
+        ]);
+    }
+
+
+
+
+
+
 
     public function store(Request $request)
     {
         DB::beginTransaction();
         try {
             $validated = $request->validate([
-                'member_id' => 'nullable|exists:members,id',
-                'voucher_id' => 'nullable|exists:vouchers,id',
+                'member_id' => 'nullable|exists:member,id',
+                'voucher_id' => 'nullable|exists:voucher,id',
                 'barang' => [
                     'required', 'array',
                     function ($attribute, $value, $fail) {
@@ -119,9 +164,9 @@ class PenjualanController extends Controller
                     }
                 ],
                 'barang.*.barcode' => 'required|string',
-                'barang.*.jumlah' => 'required|integer|min:1',
+                'barang.*.jumlah' => 'required|integer|min:1',  
                 'tanggal_penjualan' => 'nullable|date',
-                'tunai' => 'required|numeric|min:0', // 🔹 Validasi input tunai
+                'tunai' => 'required|numeric|min:0',
             ], [
                 'tunai.required' => 'Uang tunai harus diisi.',
                 'tunai.numeric' => 'Uang tunai harus berupa angka.',
@@ -132,7 +177,6 @@ class PenjualanController extends Controller
             $tanggal_penjualan = now();
             $tanggal_masuk = $validated['tanggal_penjualan'] ?? null;
 
-            // 🔹 Hitung total harga jual
             $totalHarga = 0;
             $barcodes = array_column($validated['barang'], 'barcode');
             $barangList = Barang::whereIn('barcode', $barcodes)->get()->keyBy('barcode');
@@ -151,48 +195,41 @@ class PenjualanController extends Controller
                 $totalHarga += $hargaJualFinal * $barangData['jumlah'];
             }
 
-            // 🔹 Validasi tunai harus lebih besar dari total harga jual
             if ($validated['tunai'] < $totalHarga) {
                 throw new \Exception("Uang tunai tidak cukup. Total belanja: Rp" . number_format($totalHarga, 0, ',', '.'));
             }
 
-            // 🔹 Hitung kembalian
-            $kembalian = $validated['tunai'] - $totalHarga;
-
-            // 🔹 Simpan transaksi penjualan (Tanpa tunai & kembalian)
             $penjualan = Penjualan::create([
                 'tanggal_penjualan' => $tanggal_penjualan,
-                'tanggal_masuk' => $tanggal_masuk,
-                'user_id' => $userId,
-                'member_id' => $validated['member_id'] ?? null,
-                'voucher_id' => $validated['voucher_id'] ?? null,
+                'tanggal_masuk'     => $tanggal_masuk,
+                'user_id'           => $userId,
+                'member_id'         => $validated['member_id'] ?? null,
+                'voucher_id'        => $validated['voucher_id'] ?? null,
+                'total_penjualan'   => $totalHarga,
             ]);
 
-            // 🔹 Simpan detail penjualan & update stok barang
             foreach ($validated['barang'] as $barangData) {
                 $barang = $barangList[$barangData['barcode']];
                 $hargaJualFinal = $barang->harga_jual_diskon ?? $barang->harga_jual;
 
                 $penjualan->detailPenjualan()->create([
                     'kode_barang' => $barang->kode_barang,
-                    'harga_jual' => $hargaJualFinal,
-                    'harga_beli' => $barang->harga_beli,
-                    'jumlah' => $barangData['jumlah'],
+                    'harga_jual'  => $hargaJualFinal,
+                    'harga_beli'  => $barang->harga_beli,
+                    'jumlah'      => $barangData['jumlah'],
                 ]);
 
-                // Kurangi stok barang
                 $barang->stok -= $barangData['jumlah'];
                 $barang->save();
             }
 
+            $penjualan->tunai = $validated['tunai'];
+
             DB::commit();
 
             return response()->json([
-                'message' => 'Penjualan berhasil ditambahkan',
-                'penjualan' => $penjualan,
-                'total_harga' => $totalHarga,
-                'tunai' => $validated['tunai'],
-                'kembalian' => $kembalian // 🔹 Hanya dikembalikan dalam respons API
+                'message'     => 'Penjualan berhasil ditambahkan',
+                'penjualan'   => $penjualan,
             ], 201);
 
         } catch (\Exception $e) {
@@ -203,8 +240,4 @@ class PenjualanController extends Controller
             ], 500);
         }
     }
-
-
-
-
 }

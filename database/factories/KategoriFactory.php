@@ -5,9 +5,9 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\KategoriBarang>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Kategori>
  */
-class KategoriBarangFactory extends Factory
+class KategoriFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,7 +17,10 @@ class KategoriBarangFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+          'nama_kategori' => $this->faker->unique()->randomElement([
+    'Makanan', 'Minuman', 'Elektronik', 'Furnitur', 'Pakaian', 'Buku', 'Olahraga'
+]),
+
         ];
     }
 }
