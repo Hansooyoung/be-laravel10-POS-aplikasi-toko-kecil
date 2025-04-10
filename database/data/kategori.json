@@ -1,0 +1,22 @@
+[
+    {
+        "id":1,
+        "nama_kategori":"Makanan"
+    },
+    {
+        "id":2,
+        "nama_kategori":"Minuman"
+    },
+    {
+        "id":3,
+        "nama_kategori":"Detergent"
+    },
+    {
+        "id":4,
+        "nama_kategori":"Elektronik"
+    },
+    {
+        "id":5,
+        "nama_kategori":"Mainan"
+    }
+]

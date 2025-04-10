@@ -16,9 +16,11 @@ return new class extends Migration
             $table->string('nama',50);
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role',['user','admin','super']);
+            $table->enum('role',['user','admin','super','member']);
             $table->rememberToken();
             $table->timestamps();
+
+            
         });
     }
 

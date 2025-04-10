@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HistoryVoucher;
 use App\Models\Penjualan;
 use App\Models\DetailPenjualan;
 use App\Models\Barang;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -107,21 +109,19 @@ class PenjualanController extends Controller
             'user'
         ])->findOrFail($id);
 
-        // Hitung total harga jika tidak ada di database
-        $totalHarga = $penjualan->total_penjualan ?? $penjualan->detailPenjualan->sum(function ($detail) {
-            return $detail->harga_jual * $detail->jumlah;
-        });
+        // Ambil total_penjualan_setelah_diskon jika ada, jika tidak gunakan total_penjualan
+        $totalHarga = $penjualan->total_penjualan_setelah_diskon ?? $penjualan->total_penjualan;
 
         return response()->json([
             'id' => $penjualan->id,
             'tanggal_penjualan' => $penjualan->tanggal_penjualan,
             'nama_kasir' => $penjualan->user?->name,
-            'total_penjualan' => $totalHarga,
+            'total_penjualan' => $totalHarga, // Menggunakan total setelah diskon jika ada
             'total_keuntungan' => $penjualan->total_keuntungan,
             'nama_member' => $penjualan->member?->nama,
             'nama_voucher' => $penjualan->voucher?->nama_voucher,
-            'tunai' => $request->input('tunai', 0), // Ambil dari frontend
-            'kembalian' => $request->input('kembalian', 0), // Ambil dari frontend
+            'tunai' => $request->input('tunai', 0),
+            'kembalian' => $request->input('kembalian', 0),
             'detail_penjualan' => $penjualan->detailPenjualan->map(function ($detail) {
                 return [
                     'id' => $detail->id,
@@ -143,13 +143,13 @@ class PenjualanController extends Controller
 
 
 
+
     public function store(Request $request)
     {
         DB::beginTransaction();
         try {
             $validated = $request->validate([
                 'member_id' => 'nullable|exists:member,id',
-                'voucher_id' => 'nullable|exists:voucher,id',
                 'barang' => [
                     'required', 'array',
                     function ($attribute, $value, $fail) {
@@ -164,7 +164,7 @@ class PenjualanController extends Controller
                     }
                 ],
                 'barang.*.barcode' => 'required|string',
-                'barang.*.jumlah' => 'required|integer|min:1',  
+                'barang.*.jumlah' => 'required|integer|min:1',
                 'tanggal_penjualan' => 'nullable|date',
                 'tunai' => 'required|numeric|min:0',
             ], [
@@ -176,8 +176,9 @@ class PenjualanController extends Controller
             $userId = auth()->id();
             $tanggal_penjualan = now();
             $tanggal_masuk = $validated['tanggal_penjualan'] ?? null;
+            $voucherId = null;
 
-            $totalHarga = 0;
+            // Ambil barang berdasarkan barcode
             $barcodes = array_column($validated['barang'], 'barcode');
             $barangList = Barang::whereIn('barcode', $barcodes)->get()->keyBy('barcode');
 
@@ -190,24 +191,18 @@ class PenjualanController extends Controller
                 if ($barang->stok < $barangData['jumlah']) {
                     throw new \Exception("Stok barang {$barang->nama_barang} tidak mencukupi.");
                 }
-
-                $hargaJualFinal = $barang->harga_jual_diskon ?? $barang->harga_jual;
-                $totalHarga += $hargaJualFinal * $barangData['jumlah'];
             }
 
-            if ($validated['tunai'] < $totalHarga) {
-                throw new \Exception("Uang tunai tidak cukup. Total belanja: Rp" . number_format($totalHarga, 0, ',', '.'));
-            }
-
+            // Simpan transaksi awal (sementara)
             $penjualan = Penjualan::create([
                 'tanggal_penjualan' => $tanggal_penjualan,
                 'tanggal_masuk'     => $tanggal_masuk,
                 'user_id'           => $userId,
                 'member_id'         => $validated['member_id'] ?? null,
-                'voucher_id'        => $validated['voucher_id'] ?? null,
-                'total_penjualan'   => $totalHarga,
+                'voucher_id'        => null, // Voucher ditentukan nanti setelah cek total
             ]);
 
+            // Simpan detail penjualan & kurangi stok barang
             foreach ($validated['barang'] as $barangData) {
                 $barang = $barangList[$barangData['barcode']];
                 $hargaJualFinal = $barang->harga_jual_diskon ?? $barang->harga_jual;
@@ -223,13 +218,50 @@ class PenjualanController extends Controller
                 $barang->save();
             }
 
+            // Cek jika member memiliki voucher yang tersedia
+            if (!empty($validated['member_id'])) {
+                $historyVoucher = HistoryVoucher::where('member_id', $validated['member_id'])
+                    ->whereNull('tanggal_digunakan')
+                    ->first();
+
+                if ($historyVoucher) {
+                    $voucher = Voucher::find($historyVoucher->voucher_id);
+
+                    if ($voucher) {
+                        // Cek apakah total belanja memenuhi `min_pembelian`
+                        if ($penjualan->total_penjualan < $voucher->min_pembelian) {
+                            throw new \Exception("Minimal pembelian untuk voucher ini adalah Rp" . number_format($voucher->min_pembelian, 0, ',', '.') . ". Total belanja Anda: Rp" . number_format($penjualan->total_penjualan, 0, ',', '.'));
+                        }
+
+                        $voucherId = $voucher->id;
+                    }
+                }
+            }
+
+            // Set voucher_id jika valid
+            if ($voucherId) {
+                $penjualan->voucher_id = $voucherId;
+                $penjualan->save();
+            }
+
+            // Validasi tunai setelah diskon
+            if ($validated['tunai'] < $penjualan->total_penjualan_setelah_diskon) {
+                throw new \Exception("Uang tunai tidak cukup. Total belanja setelah diskon: Rp" . number_format($penjualan->total_penjualan_setelah_diskon, 0, ',', '.'));
+            }
+
+            // Simpan tunai di model
             $penjualan->tunai = $validated['tunai'];
+
+            // Tandai voucher sebagai digunakan jika ada
+            if ($voucherId) {
+                $historyVoucher->update(['tanggal_digunakan' => now()]);
+            }
 
             DB::commit();
 
             return response()->json([
                 'message'     => 'Penjualan berhasil ditambahkan',
-                'penjualan'   => $penjualan,
+                'penjualan'   => $penjualan->load('voucher'),
             ], 201);
 
         } catch (\Exception $e) {
@@ -240,4 +272,8 @@ class PenjualanController extends Controller
             ], 500);
         }
     }
+
+
+
+
 }

@@ -14,7 +14,7 @@ class User extends Authenticatable implements JWTSubject
 
     protected $table = 'user';
     protected $primaryKey = 'id';
-    public $incrementing = false;
+    public $incrementing = true;
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -54,5 +54,9 @@ class User extends Authenticatable implements JWTSubject
     public function pembelian()
     {
         return $this->hasMany(Pembelian::class, 'user_id');
+    }
+    public function member()
+    {
+        return $this->hasOne(Member::class, 'user_id');
     }
 }

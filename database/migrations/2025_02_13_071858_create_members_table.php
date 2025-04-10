@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('member', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id');
             $table->string('nama_member');
             $table->string('email')->unique();
+            $table->string('alamat');
             $table->string('no_hp')->unique();
             $table->string('password');
-            $table->bigInteger('total_point');
+            $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('user');
         });
     }
 

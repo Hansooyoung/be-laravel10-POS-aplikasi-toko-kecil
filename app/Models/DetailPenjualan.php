@@ -21,8 +21,9 @@ class DetailPenjualan extends Model
     // 🔹 Relasi ke tabel Barang
     public function barang()
     {
-        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang');
+        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang')->withTrashed();
     }
+
     public function penjualan()
 {
     return $this->belongsTo(Penjualan::class, 'penjualan_id');

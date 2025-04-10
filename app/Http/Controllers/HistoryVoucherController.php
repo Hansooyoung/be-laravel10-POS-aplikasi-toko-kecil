@@ -5,15 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\HistoryVoucher;
 use App\Http\Requests\StoreHistoryVoucherRequest;
 use App\Http\Requests\UpdateHistoryVoucherRequest;
+use Illuminate\Http\Request;
 
 class HistoryVoucherController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = HistoryVoucher::with('voucher')->where('member_id', $request->member_id);
+
+        // Filter hanya voucher yang belum digunakan
+        if ($request->status == 'unused') {
+            $query->whereNull('tanggal_digunakan');
+        }
+
+        return response()->json([
+            'data' => $query->get()
+        ]);
     }
 
     /**

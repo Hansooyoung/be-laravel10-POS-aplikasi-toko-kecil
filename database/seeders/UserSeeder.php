@@ -41,6 +41,15 @@ class UserSeeder extends Seeder
                 'remember_token' => null,
                 'created_at' => now(),
                 'updated_at' => now(),
+            ],
+            [
+                'nama' => 'Regular User 02',
+                'email' => 'user2@gmail.com',
+                'password' => Hash::make('user123'),
+                'role' => 'user',
+                'remember_token' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]
         ]);
     }

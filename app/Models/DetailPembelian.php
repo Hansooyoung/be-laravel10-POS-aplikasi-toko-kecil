@@ -13,7 +13,7 @@ class DetailPembelian extends Model
 
     protected $fillable = [
         'pembelian_id',
-        
+
         'kode_barang',
         'harga_beli',
         'jumlah',
@@ -33,8 +33,9 @@ class DetailPembelian extends Model
      */
     public function barang()
     {
-        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang');
+        return $this->belongsTo(Barang::class, 'kode_barang', 'kode_barang')->withTrashed();
     }
+
 
     /**
      * Menghitung subtotal (harga_beli * jumlah).

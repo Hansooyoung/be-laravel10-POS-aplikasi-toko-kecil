@@ -1,5 +1,5 @@
 <?php
-
+// Model Penjualan.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,37 +18,64 @@ class Penjualan extends Model
         'tanggal_penjualan'
     ];
 
-    protected $appends = ['total_penjualan', 'total_keuntungan','tunai','kembalian'];
+    protected $appends = ['total_penjualan', 'total_penjualan_setelah_diskon', 'total_keuntungan', 'tunai', 'kembalian','total_diskon'];
 
-    // 🔹 Relasi ke Member (jika ada)
     public function member()
     {
         return $this->belongsTo(Member::class, 'member_id');
     }
 
-    // 🔹 Relasi ke Voucher (jika ada)
     public function voucher()
     {
         return $this->belongsTo(Voucher::class, 'voucher_id');
     }
 
-    // 🔹 Relasi ke User (kasir yang melakukan transaksi)
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // 🔹 Relasi ke Detail Penjualan
     public function detailPenjualan()
     {
         return $this->hasMany(DetailPenjualan::class, 'penjualan_id');
     }
 
-    // 🔹 Total harga dari semua barang dalam transaksi
+    // 🔹 Total harga sebelum diskon
     public function getTotalPenjualanAttribute()
     {
         return $this->detailPenjualan->sum(fn($detail) => $detail->harga_jual * $detail->jumlah);
     }
+
+    // 🔹 Total harga setelah diskon (mengurangi voucher jika ada)
+    public function getTotalDiskonAttribute()
+    {
+        if (!$this->voucher) {
+            return 0;
+        }
+
+        $total = $this->total_penjualan;
+        $voucher = $this->voucher;
+
+        // Pastikan minimal pembelian terpenuhi
+        if ($total < $voucher->min_pembelian) {
+            return 0;
+        }
+
+        if ($voucher->jenis_voucher === 'persen') {
+            return ($voucher->nilai_voucher / 100) * $total;
+        } else {
+            return min($total, $voucher->nilai_voucher); // Maksimal diskon adalah total belanja
+        }
+    }
+
+    /**
+     * Menghitung total penjualan setelah diskon
+     */
+    public function getTotalPenjualanSetelahDiskonAttribute()
+    {
+        return max($this->total_penjualan - $this->total_diskon, 0);
+    }
+
 
     // 🔹 Total keuntungan (harga jual - harga beli) * jumlah barang
     public function getTotalKeuntunganAttribute()
@@ -70,6 +97,6 @@ class Penjualan extends Model
 
     public function getKembalianAttribute()
     {
-        return max(($this->tunaiInput ?? 0) - $this->total_penjualan, 0);
+        return max(($this->tunaiInput ?? 0) - $this->total_penjualan_setelah_diskon, 0);
     }
 }

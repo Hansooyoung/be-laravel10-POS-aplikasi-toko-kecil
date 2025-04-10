@@ -56,7 +56,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:50',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:user,email',
             'password' => 'required|string|min:6',
             'role' => 'required|in:user,admin,super',
         ]);
@@ -80,7 +80,7 @@ class UserController extends Controller
             'nama' => 'sometimes|required|string|max:50',
             'email' => [
                 'sometimes', 'required', 'email',
-                Rule::unique('users', 'email')->ignore($user->id),
+                Rule::unique('user', 'email')->ignore($user->id),
             ],
             'password' => 'nullable|string|min:6',
             'role' => 'sometimes|required|in:user,admin,super',
@@ -97,10 +97,6 @@ class UserController extends Controller
             'data' => $user
         ]);
     }
-
-    /**
-     * Hapus user dengan pengecekan relasi ke barang dan pembelian.
-     */
     public function destroy($id)
     {
         $user = User::find($id);

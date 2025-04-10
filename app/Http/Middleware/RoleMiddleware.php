@@ -8,6 +8,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Illuminate\Support\Facades\Log; // Tambahkan ini untuk logging
 
 class RoleMiddleware
 {
@@ -15,6 +16,13 @@ class RoleMiddleware
     {
         try {
             $user = JWTAuth::parseToken()->authenticate();
+
+            // 🛠 DEBUGGING: Log informasi user dan role
+            Log::info('RoleMiddleware Debugging:', [
+                'user_id' => optional($user)->id,
+                'user_role' => optional($user)->role,
+                'expected_role' => $role,
+            ]);
 
             if (!$user) {
                 return response()->json(['message' => 'Unauthorized'], 401);

@@ -4,31 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Member extends Authenticatable
+class Member extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, SoftDeletes;
 
-    protected $table = 'member';
+    protected $table = 'member'; // Nama tabel di database
 
     protected $fillable = [
+        'user_id',
         'nama_member',
         'email',
+        'alamat',
         'no_hp',
-        'password',
-        'total_point',
+        'password'
     ];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    public function penjualan()
+    /**
+     * Relasi ke tabel users (User yang terhubung dengan Member)
+     */
+    public function user()
     {
-        return $this->hasMany(penjualan::class, 'member_id', 'member_id');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relasi ke tabel pengajuan_barang (Pengajuan Barang oleh Member)
+     */
+    public function pengajuanBarang()
+    {
+        return $this->hasMany(PengajuanBarang::class, 'member_id');
     }
 }

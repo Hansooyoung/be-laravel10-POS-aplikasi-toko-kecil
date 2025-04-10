@@ -14,6 +14,7 @@ use App\Models\Vendor;
 use App\Models\Diskon;
 use App\Models\Member;
 use Carbon\Carbon;
+use PenjualanSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,13 +25,16 @@ class DatabaseSeeder extends Seeder
     {
 
         $this->call(UserSeeder::class);
-        // Kategori::factory()->count(5)->create();
         $this->call(KategoriSeeder::class);
         $this->call(SatuanSeeder::class);
         $this->call(VendorSeeder::class);
         $this->call(DiskonSeeder::class);
         $this->call(VoucherSeeder::class);
-        $this->call(MemberSeeder::class);
+        $this->call(BarangSeeder::class);
+        $this->call(TransaksiSeeder::class);
+
+        // $this->call(MemberSeeder::class);
+        // $this->call(HistoryVoucherSeeder::class);
         // Barang::factory()->count(10)->create();
 
     }

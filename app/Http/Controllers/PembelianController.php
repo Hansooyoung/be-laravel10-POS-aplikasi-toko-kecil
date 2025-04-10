@@ -30,10 +30,10 @@ class PembelianController extends Controller
         return [
             'id' => $item->id,
             'tanggal_pembelian' => $item->tanggal_pembelian,
-            'tanggal_masuk' => $item->tanggal_masuk ?? 'Belum Masuk',
+            'tanggal_masuk' => $item->tanggal_masuk,
             'created_at' => $item->created_at,
             'updated_at' => $item->updated_at,
-            'total' => 'Rp. ' . number_format($item->total, 0, ',', '.'),
+            'total' => $item->total,
             'nama_vendor' => $item->vendor->nama_vendor ?? null,
             'nama_user' => $item->user->nama ?? null,
             'detail_pembelian' => $item->detailPembelian->map(function ($detail) {
@@ -96,15 +96,15 @@ class PembelianController extends Controller
             'vendor_id' => $pembelian->vendor_id,
             'created_at' => $pembelian->created_at,
             'updated_at' => $pembelian->updated_at,
-            'total' => 'Rp. ' . number_format($pembelian->total, 0, ',', '.'),
+            'total' => $pembelian->total,
             'detail_pembelian' => $detailPembelian->through(function ($detail) {
                 return [
                     'id' => $detail->id,
                     'pembelian_id' => $detail->pembelian_id,
                     'kode_barang' => $detail->kode_barang,
-                    'harga_beli' => 'Rp. ' . number_format($detail->harga_beli, 0, ',', '.'),
+                    'harga_beli' => $detail->harga_beli,
                     'jumlah' => $detail->jumlah,
-                    'sub_total' => 'Rp. ' . number_format($detail->sub_total, 0, ',', '.'),
+                    'sub_total' => $detail->sub_total,
                     'nama_barang' => $detail->barang->nama_barang,
                 ];
             }),
@@ -127,8 +127,8 @@ class PembelianController extends Controller
 
         $pembelian = Pembelian::findOrFail($id);
 
-        // Cek apakah tanggal_masuk masih null atau "Belum Masuk"
-        if (!is_null($pembelian->tanggal_masuk) && $pembelian->tanggal_masuk !== 'Belum Masuk') {
+        // Hanya bisa mengupdate jika tanggal_masuk masih null
+        if (!is_null($pembelian->tanggal_masuk)) {
             return response()->json([
                 'error' => 'Tanggal masuk sudah ditetapkan dan tidak dapat diubah.',
             ], 400);
@@ -139,8 +139,19 @@ class PembelianController extends Controller
             'tanggal_masuk' => $request->tanggal_masuk,
         ]);
 
+        // Tambahkan stok barang karena baru masuk
+        $detailPembelian = $pembelian->detailPembelian;
+
+        foreach ($detailPembelian as $detail) {
+            $barang = Barang::where('kode_barang', $detail->kode_barang)->first();
+            if ($barang) {
+                $barang->stok += $detail->jumlah;
+                $barang->save();
+            }
+        }
+
         return response()->json([
-            'message' => 'Tanggal masuk berhasil diperbarui.',
+            'message' => 'Tanggal masuk berhasil diperbarui dan stok telah ditambahkan.',
             'pembelian' => $pembelian,
         ]);
     }
@@ -215,11 +226,17 @@ class PembelianController extends Controller
                     'jumlah' => $barangData['jumlah'],
                 ]);
 
-                // Update stok dan harga beli barang
-                $barang->stok += $barangData['jumlah'];
+                // Selalu update harga beli
                 $barang->harga_beli = $barangData['harga_beli'];
+
+                // Hanya tambahkan stok jika tanggal_masuk sudah diisi
+                if (!is_null($tanggal_masuk)) {
+                    $barang->stok += $barangData['jumlah'];
+                }
+
                 $barang->save();
             }
+
 
             DB::commit();
 
