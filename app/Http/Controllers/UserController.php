@@ -17,9 +17,17 @@ class UserController extends Controller
     {
         $query = User::query();
 
+        // Filter pencarian berdasarkan nama atau email
         if ($request->has('search') && !empty($request->search)) {
-            $query->where('nama', 'LIKE', '%' . $request->search . '%')
+            $query->where(function ($q) use ($request) {
+                $q->where('nama', 'LIKE', '%' . $request->search . '%')
                   ->orWhere('email', 'LIKE', '%' . $request->search . '%');
+            });
+        }
+
+        // Filter berdasarkan role, contoh: ?role=admin
+        if ($request->has('role') && !empty($request->role)) {
+            $query->where('role', $request->role);
         }
 
         $users = $query->paginate(10);
@@ -29,6 +37,7 @@ class UserController extends Controller
             'data' => $users
         ]);
     }
+
 
     /**
      * Tampilkan user berdasarkan ID.
@@ -58,10 +67,9 @@ class UserController extends Controller
             'nama' => 'required|string|max:50',
             'email' => 'required|email|unique:user,email',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:user,admin,super',
+            'role' => 'required|in:user,admin,super,operator',
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
 

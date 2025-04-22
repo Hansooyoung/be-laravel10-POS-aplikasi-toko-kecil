@@ -17,7 +17,7 @@ class BarangSeeder extends Seeder
         $kategori_ids = Kategori::pluck('id')->toArray();
         $satuan_ids = Satuan::pluck('id')->toArray();
         $diskon_ids = Diskon::pluck('id')->toArray();
-        $user_ids = [3, 4]; // Hanya user_id 3 atau 4
+        $user_ids = [5,6]; // Hanya user_id 3 atau 4
 
         // Data barang dalam bentuk JSON (10 barang)
         $barangData = [

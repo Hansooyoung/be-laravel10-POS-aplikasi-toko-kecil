@@ -10,23 +10,25 @@ use Illuminate\Validation\Rule;
 
 class BarangController extends Controller
 {
-
+    /**
+     * Get paginated list of items with filters
+     *
+     * @param Request $request The HTTP request containing filters
+     * @return \Illuminate\Http\JsonResponse Paginated list of items
+     */
     public function index(Request $request)
     {
-        $query = Barang::with([
-            'kategori',
-            'user',
-            'diskon'
-        ]);
+        // Base query with eager loading
+        $query = Barang::with(['kategori', 'user', 'diskon']);
 
-        // 🔹 Filter berdasarkan nama kategori
+        // 🔹 Filter by category name if provided
         if ($request->has('nama_kategori') && !empty($request->nama_kategori)) {
             $query->whereHas('kategori', function ($q) use ($request) {
                 $q->where('nama_kategori', $request->nama_kategori);
             });
         }
 
-        // 🔹 Filter pencarian nama_barang atau barcode
+        // 🔹 Search by item name or barcode if search term provided
         if ($request->has('search') && !empty($request->search)) {
             $query->where(function ($q) use ($request) {
                 $q->where('nama_barang', 'LIKE', '%' . $request->search . '%')
@@ -34,26 +36,29 @@ class BarangController extends Controller
             });
         }
 
+        // Paginate results (10 items per page)
         $barang = $query->paginate(10);
 
+        // Transform each item in the collection
         $barangData = $barang->map(function ($item) {
             return [
                 'kode_barang' => $item->kode_barang,
                 'barcode' => $item->barcode,
                 'nama_barang' => $item->nama_barang,
-                'gambar' => $item->gambar ? url('storage/' . $item->gambar) : null,
+                'gambar' => $item->gambar ? 'http://localhost:8000/storage/' . $item->gambar : null, // 🔹 Convert image path to URL
                 'status' => $item->status,
                 'satuan' => $item->satuan->nama_satuan,
                 'profit_persen' => $item->profit_persen,
                 'harga_jual' => $item->harga_jual,
                 'harga_jual_diskon' => $item->harga_jual_diskon ?? 'Tidak Ada Diskon',
-                'harga_beli' => 'Rp. ' . number_format($item->harga_beli, 0, ',', '.'),
+                'harga_beli' => 'Rp. ' . number_format($item->harga_beli, 0, ',', '.'), // Format price
                 'stok' => $item->stok,
                 'kategori' => $item->kategori->nama_kategori,
                 'user' => $item->user->nama,
             ];
         });
 
+        // Return response with pagination metadata
         return response()->json([
             'data' => $barangData,
             'pagination' => [
@@ -67,33 +72,37 @@ class BarangController extends Controller
         ]);
     }
 
-
+    /**
+     * Get single item details
+     *
+     * @param string $kode_barang Item code to lookup
+     * @return \Illuminate\Http\JsonResponse Item details
+     */
     public function show($kode_barang)
     {
-        $barang = Barang::with([
-            'kategori',
-            'user',
-            'diskon'
-        ])->where('kode_barang', $kode_barang)->firstOrFail();
+        // Find item with eager loaded relationships or fail
+        $barang = Barang::with(['kategori', 'user', 'diskon'])
+                      ->where('kode_barang', $kode_barang)
+                      ->firstOrFail();
 
-        // Siapkan respons
+        // Prepare response data
         $response = [
             'kode_barang' => $barang->kode_barang,
             'nama_barang' => $barang->nama_barang,
             'barcode' => $barang->barcode,
-            'gambar' => $barang->gambar ? 'http://localhost:8000/storage/' . $barang->gambar : null, // 🔹 Mengubah path gambar menjadi URL
+            'gambar' => $barang->gambar ? 'http://localhost:8000/storage/' . $barang->gambar : null, // 🔹 Convert image path to URL
             'status' => $barang->status,
             'satuan' => $barang->satuan->nama_satuan,
             'harga_beli' => $barang->harga_beli,
             'harga_jual' => $barang->harga_jual,
-            'harga_jual_diskon' => $barang->harga_jual_diskon ?? 'Tidak Ada Diskon',    
+            'harga_jual_diskon' => $barang->harga_jual_diskon ?? 'Tidak Ada Diskon',
             'profit_persen' => $barang->profit_persen,
             'stok' => $barang->stok,
             'kategori' => $barang->kategori->nama_kategori,
             'user' => $barang->user->nama,
-
         ];
 
+        // Add discount name if discount exists
         if ($barang->diskon_id) {
             $response['nama_diskon'] = $barang->diskon->nama_diskon;
         }
@@ -101,13 +110,16 @@ class BarangController extends Controller
         return response()->json($response);
     }
 
-
-
-
+    /**
+     * Create new item
+     *
+     * @param Request $request HTTP request with item data
+     * @return \Illuminate\Http\JsonResponse Response with created item or errors
+     */
     public function store(Request $request)
     {
         try {
-            // Validasi input
+            // Validate input data
             $validated = $request->validate([
                 'kategori_id' => 'required|exists:kategori,id',
                 'satuan_id' => 'required|exists:satuan,id',
@@ -116,23 +128,25 @@ class BarangController extends Controller
                 'barcode' => 'required|string|max:50|unique:barang,barcode',
                 'status' => 'required|in:Aktif,Tidak',
                 'profit_persen' => 'nullable|numeric|min:0|max:100',
-                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
             ]);
 
+            // Get authenticated user ID
             $user_id = auth()->id();
 
-            // Generate kode barang
+            // Generate unique item code
             $kode_barang = $this->generateKodeBarang($validated['kategori_id']);
 
-            // Upload gambar jika ada
+            // Handle image upload if present
             $gambarPath = null;
             if ($request->hasFile('gambar') && $request->file('gambar')->isValid()) {
                 $gambarPath = $request->file('gambar')->store('barang_images', 'public');
             }
 
+            // Set default profit percentage if not provided
             $profit_persen = $validated['profit_persen'] ?? 10;
 
-            // Simpan barang dengan diskon jika ada
+            // Create new item record
             $barang = Barang::create([
                 'kode_barang' => $kode_barang,
                 'kategori_id' => $validated['kategori_id'],
@@ -143,11 +157,12 @@ class BarangController extends Controller
                 'nama_barang' => $validated['nama_barang'],
                 'status' => $validated['status'],
                 'profit_persen' => $profit_persen,
-                'harga_beli' => 0,
-                'stok' => 0,
+                'harga_beli' => 0, // Default values
+                'stok' => 0,       // Default values
                 'gambar' => $gambarPath,
             ]);
 
+            // Return success response with created item data
             return response()->json([
                 'message' => 'Barang berhasil ditambahkan',
                 'barang' => [
@@ -164,34 +179,36 @@ class BarangController extends Controller
                     'kategori' => $barang->kategori->nama_kategori ?? null,
                     'user' => $barang->user->nama ?? null,
                 ]
-            ], 201);
+            ], 201); // 201 Created status code
 
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation errors
             return response()->json([
                 'message' => 'Validasi gagal',
                 'errors' => $e->errors(),
-            ], 422);
+            ], 422); // 422 Unprocessable Entity
         } catch (\Exception $e) {
+            // Return generic error
             return response()->json([
                 'message' => 'Gagal menambahkan barang',
                 'error' => $e->getMessage()
-            ], 500);
+            ], 500); // 500 Internal Server Error
         }
     }
 
-
-
-
-
-
-
-
-
+    /**
+     * Update existing item
+     *
+     * @param Request $request HTTP request with update data
+     * @param string $kode_barang Item code to update
+     * @return \Illuminate\Http\JsonResponse Response with updated item or errors
+     */
     public function update(Request $request, $kode_barang)
     {
+        // Find item or fail
         $barang = Barang::where('kode_barang', $kode_barang)->firstOrFail();
 
-        // Validasi data termasuk gambar
+        // Validate input data (some fields are optional with 'sometimes')
         $validated = $request->validate([
             'kategori_id' => 'sometimes|required|exists:kategori,id',
             'satuan_id' => 'sometimes|required|exists:satuan,id',
@@ -209,66 +226,75 @@ class BarangController extends Controller
             'gambar' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Cek apakah gambar baru diunggah
+        // Handle image update if new image provided
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama jika ada
+            // Delete old image if exists
             if ($barang->gambar && Storage::disk('public')->exists($barang->gambar)) {
                 Storage::disk('public')->delete($barang->gambar);
             }
 
-            // Simpan gambar baru
+            // Store new image
             $gambarPath = $request->file('gambar')->store('barang_images', 'public');
             $validated['gambar'] = $gambarPath;
         } else {
-            // Jika tidak ada gambar baru, tetap gunakan gambar lama
+            // Keep existing image if no new image provided
             $validated['gambar'] = $barang->gambar;
         }
 
-        // Debug: Cek apakah data valid sebelum update
+        // Check if any data was provided for update
         if (empty($validated)) {
             return response()->json([
                 'message' => 'Tidak ada data yang dikirim untuk update'
-            ], 400);
+            ], 400); // 400 Bad Request
         }
 
-        // Update barang
+        // Update item with validated data
         $barang->update($validated);
 
+        // Return success response with refreshed item data
         return response()->json([
             'message' => 'Barang berhasil diperbarui',
-            'barang' => $barang->fresh()
+            'barang' => $barang->fresh() // Get fresh data from database
         ]);
     }
 
-
-
-
-
-
-    // ✅ DELETE: Soft delete barang
+    /**
+     * Soft delete an item
+     *
+     * @param string $kode_barang Item code to delete
+     * @return \Illuminate\Http\JsonResponse Success message
+     */
     public function destroy($kode_barang)
     {
+        // Find item or fail
         $barang = Barang::where('kode_barang', $kode_barang)->firstOrFail();
+
+        // Soft delete the item
         $barang->delete();
 
         return response()->json(['message' => 'Barang berhasil dihapus']);
     }
 
-    // ✅ Generate kode barang (BRG+Tahun+id kategori+no urut)
+    /**
+     * Generate unique item code (BRG+Year+CategoryID+Sequence)
+     *
+     * @param int $kategori_id Category ID
+     * @return string Generated item code
+     */
     private function generateKodeBarang($kategori_id)
     {
-        $tahun = date('Y');
+        $tahun = date('Y'); // Current year
 
-        // Ambil nomor urut terakhir termasuk yang sudah soft delete
+        // Get last item in this category/year (including soft deleted)
         $lastBarang = Barang::withTrashed()
             ->where('kategori_id', $kategori_id)
             ->whereYear('created_at', $tahun)
             ->orderBy('kode_barang', 'desc')
             ->first();
 
-        // Ambil no urut terakhir, jika tidak ada mulai dari 1
+        // Extract sequence number or start from 1
         $lastNumber = $lastBarang ? (int)substr($lastBarang->kode_barang, -4) : 0;
-        $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT); // 4-digit sequence
 
         return "BRG{$tahun}{$kategori_id}{$newNumber}";
     }

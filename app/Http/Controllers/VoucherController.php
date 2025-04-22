@@ -59,22 +59,36 @@ class VoucherController extends Controller
         ]);
     }
 
-    public function update(Request $request, Voucher $voucher)
+    public function update(Request $request, $id)
     {
+        // Cari voucher berdasarkan ID
+        $voucher = Voucher::find($id);
+
+        // Kalau tidak ditemukan, return 404
+        if (!$voucher) {
+            return response()->json([
+                'message' => 'Voucher tidak ditemukan'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Validasi input
         $validated = $request->validate([
-            'nama_voucher' => 'required|string|max:255|unique:voucher,nama_voucher,' . $voucher->id,
-            'harga_point' => 'required|integer|min:0',
-            'jenis_voucher' => 'required|string|max:50',
-            'status' => 'required|in:aktif,tidak_aktif',
-            'nilai_voucher' => 'required|numeric|min:0',
-            'min_pembelian' => 'required|numeric|min:0',
+            'nama_voucher'   => 'sometimes|string|max:255|unique:voucher,nama_voucher,' . $voucher->id,
+            'harga_point'    => 'sometimes|integer|min:0',
+            'jenis_voucher'  => 'sometimes|string|max:50|in:persen,nominal',
+            'status'         => 'sometimes|string|in:aktif,kadaluarsa',
+            'nilai_voucher'  => 'sometimes|numeric|min:0',
+            'min_pembelian'  => 'sometimes|numeric|min:0',
         ]);
 
+        // Update voucher
         $voucher->update($validated);
+        $voucher->refresh(); // Pastikan ambil data terbaru dari DB
 
+        // Return response
         return response()->json([
             'message' => 'Voucher berhasil diperbarui',
-            'data' => $voucher
+            'data'    => $voucher
         ]);
     }
 

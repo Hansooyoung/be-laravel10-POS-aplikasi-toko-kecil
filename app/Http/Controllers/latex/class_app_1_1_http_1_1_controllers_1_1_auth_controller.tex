@@ -1,0 +1,73 @@
+\doxysection{Auth\+Controller Class Reference}
+\hypertarget{class_app_1_1_http_1_1_controllers_1_1_auth_controller}{}\label{class_app_1_1_http_1_1_controllers_1_1_auth_controller}\index{AuthController@{AuthController}}
+Inheritance diagram for Auth\+Controller\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_app_1_1_http_1_1_controllers_1_1_auth_controller}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_auth_controller_a8f1d8097919ba856b51e28c4b4d4a402}{user}} (Request \$request)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_auth_controller_ab27bea29a2b42a9c42a388032eee21ac}{login}} (Request \$request)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_auth_controller_a5b2715b64f1825c3c1e3a92ee2b695fc}{logout}} (Request \$request)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_auth_controller_ab27bea29a2b42a9c42a388032eee21ac}\index{AuthController@{AuthController}!login@{login}}
+\index{login@{login}!AuthController@{AuthController}}
+\doxysubsubsection{\texorpdfstring{login()}{login()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_auth_controller_ab27bea29a2b42a9c42a388032eee21ac} 
+login (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Authenticate user and generate JWT token
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & The incoming HTTP request containing credentials \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response JSON response with token/user data or error 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_auth_controller_a5b2715b64f1825c3c1e3a92ee2b695fc}\index{AuthController@{AuthController}!logout@{logout}}
+\index{logout@{logout}!AuthController@{AuthController}}
+\doxysubsubsection{\texorpdfstring{logout()}{logout()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_auth_controller_a5b2715b64f1825c3c1e3a92ee2b695fc} 
+logout (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Invalidate the current JWT token (logout)
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & The incoming HTTP request \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response JSON response indicating logout status 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_auth_controller_a8f1d8097919ba856b51e28c4b4d4a402}\index{AuthController@{AuthController}!user@{user}}
+\index{user@{user}!AuthController@{AuthController}}
+\doxysubsubsection{\texorpdfstring{user()}{user()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_auth_controller_a8f1d8097919ba856b51e28c4b4d4a402} 
+user (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Get the authenticated user\textquotesingle{}s data
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & The incoming HTTP request \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response JSON response containing user details 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/\+ACER/\+Documents/\+Belajar Pemograman/\+Ujikom/be-\/laravel10-\/aplikasi-\/supermarket/app/\+Http/\+Controllers/Auth\+Controller.\+php\end{DoxyCompactItemize}

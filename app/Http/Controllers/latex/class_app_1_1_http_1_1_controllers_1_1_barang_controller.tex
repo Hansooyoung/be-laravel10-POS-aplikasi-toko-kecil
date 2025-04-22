@@ -1,0 +1,111 @@
+\doxysection{Barang\+Controller Class Reference}
+\hypertarget{class_app_1_1_http_1_1_controllers_1_1_barang_controller}{}\label{class_app_1_1_http_1_1_controllers_1_1_barang_controller}\index{BarangController@{BarangController}}
+Inheritance diagram for Barang\+Controller\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_app_1_1_http_1_1_controllers_1_1_barang_controller}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_barang_controller_ab567a949f50e20ea3d95ad062a17e3c3}{index}} (Request \$request)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_barang_controller_abe1ecc1aa548a2b3f26ec030af69afa6}{show}} (\$kode\+\_\+barang)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_barang_controller_a9ef485163104597c12185b53cdacf638}{store}} (Request \$request)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_barang_controller_aa12fdf8ae367a5af078c498ca0bda3ea}{update}} (Request \$request, \$kode\+\_\+barang)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_barang_controller_aa2e9c69ec647ee61b80711c1d263ef0f}{destroy}} (\$kode\+\_\+barang)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_barang_controller_aa2e9c69ec647ee61b80711c1d263ef0f}\index{BarangController@{BarangController}!destroy@{destroy}}
+\index{destroy@{destroy}!BarangController@{BarangController}}
+\doxysubsubsection{\texorpdfstring{destroy()}{destroy()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_barang_controller_aa2e9c69ec647ee61b80711c1d263ef0f} 
+destroy (\begin{DoxyParamCaption}\item[{}]{\$kode\+\_\+barang}{}\end{DoxyParamCaption})}
+
+Soft delete an item
+
+
+\begin{DoxyParams}[1]{Parameters}
+string & {\em \$kode\+\_\+barang} & Item code to delete \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Success message 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_barang_controller_ab567a949f50e20ea3d95ad062a17e3c3}\index{BarangController@{BarangController}!index@{index}}
+\index{index@{index}!BarangController@{BarangController}}
+\doxysubsubsection{\texorpdfstring{index()}{index()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_barang_controller_ab567a949f50e20ea3d95ad062a17e3c3} 
+index (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Get paginated list of items with filters
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & The HTTP request containing filters \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Paginated list of items 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_barang_controller_abe1ecc1aa548a2b3f26ec030af69afa6}\index{BarangController@{BarangController}!show@{show}}
+\index{show@{show}!BarangController@{BarangController}}
+\doxysubsubsection{\texorpdfstring{show()}{show()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_barang_controller_abe1ecc1aa548a2b3f26ec030af69afa6} 
+show (\begin{DoxyParamCaption}\item[{}]{\$kode\+\_\+barang}{}\end{DoxyParamCaption})}
+
+Get single item details
+
+
+\begin{DoxyParams}[1]{Parameters}
+string & {\em \$kode\+\_\+barang} & Item code to lookup \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Item details 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_barang_controller_a9ef485163104597c12185b53cdacf638}\index{BarangController@{BarangController}!store@{store}}
+\index{store@{store}!BarangController@{BarangController}}
+\doxysubsubsection{\texorpdfstring{store()}{store()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_barang_controller_a9ef485163104597c12185b53cdacf638} 
+store (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Create new item
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & HTTP request with item data \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Response with created item or errors 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_barang_controller_aa12fdf8ae367a5af078c498ca0bda3ea}\index{BarangController@{BarangController}!update@{update}}
+\index{update@{update}!BarangController@{BarangController}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_barang_controller_aa12fdf8ae367a5af078c498ca0bda3ea} 
+update (\begin{DoxyParamCaption}\item[{Request}]{\$request}{, }\item[{}]{\$kode\+\_\+barang}{}\end{DoxyParamCaption})}
+
+Update existing item
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & HTTP request with update data \\
+\hline
+string & {\em \$kode\+\_\+barang} & Item code to update \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Response with updated item or errors 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/\+ACER/\+Documents/\+Belajar Pemograman/\+Ujikom/be-\/laravel10-\/aplikasi-\/supermarket/app/\+Http/\+Controllers/Barang\+Controller.\+php\end{DoxyCompactItemize}

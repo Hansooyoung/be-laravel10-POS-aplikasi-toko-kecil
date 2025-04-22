@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('nama_member');
             $table->string('email')->unique();
             $table->string('alamat');
+            $table->double('total_point');
             $table->string('no_hp')->unique();
-            $table->string('password');
             $table->softDeletes();
             $table->timestamps();
 

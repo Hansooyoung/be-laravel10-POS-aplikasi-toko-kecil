@@ -1,5 +1,4 @@
 <?php
-// Model Penjualan.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,7 +17,7 @@ class Penjualan extends Model
         'tanggal_penjualan'
     ];
 
-    protected $appends = ['total_penjualan', 'total_penjualan_setelah_diskon', 'total_keuntungan', 'tunai', 'kembalian','total_diskon'];
+    protected $appends = ['total_penjualan', 'total_penjualan_setelah_diskon', 'total_keuntungan', 'tunai', 'kembalian', 'total_diskon', 'kode_penjualan']; // Menambahkan kode_penjualan ke appends
 
     public function member()
     {
@@ -76,7 +75,6 @@ class Penjualan extends Model
         return max($this->total_penjualan - $this->total_diskon, 0);
     }
 
-
     // 🔹 Total keuntungan (harga jual - harga beli) * jumlah barang
     public function getTotalKeuntunganAttribute()
     {
@@ -98,5 +96,19 @@ class Penjualan extends Model
     public function getKembalianAttribute()
     {
         return max(($this->tunaiInput ?? 0) - $this->total_penjualan_setelah_diskon, 0);
+    }
+
+    public function getKodePenjualanAttribute()
+    {
+        return 'INV-' . date('Ymd') . '-' . str_pad($this->id, 4, '0', STR_PAD_LEFT); // Menggunakan ID penjualan
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            // Tidak perlu membuat kode_penjualan di sini karena kode_penjualan sudah dihitung menggunakan getKodePenjualan
+        });
     }
 }

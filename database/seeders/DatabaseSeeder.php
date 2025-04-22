@@ -31,10 +31,10 @@ class DatabaseSeeder extends Seeder
         $this->call(DiskonSeeder::class);
         $this->call(VoucherSeeder::class);
         $this->call(BarangSeeder::class);
+        $this->call(MemberSeeder::class);
+        $this->call(HistoryVoucherSeeder::class);
         $this->call(TransaksiSeeder::class);
-
-        // $this->call(MemberSeeder::class);
-        // $this->call(HistoryVoucherSeeder::class);
+        $this->call(AbsensiSeeder::class);
         // Barang::factory()->count(10)->create();
 
     }

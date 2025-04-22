@@ -25,11 +25,17 @@ class TransaksiSeeder extends Seeder
 
     private function seedPembelian()
     {
-        $user_ids = [3, 4]; // Kasir atau admin
+        $user_ids = [5, 6]; // Kasir atau admin
         $vendor = Vendor::inRandomOrder()->first();
 
         if (!$vendor) {
             throw new \Exception('Tidak ada vendor yang tersedia.');
+        }
+
+        // Generate array of last 7 days
+        $last7Days = [];
+        for ($i = 0; $i < 7; $i++) {
+            $last7Days[] = Carbon::today()->subDays($i);
         }
 
         for ($i = 0; $i < 10; $i++) { // 10 transaksi pembelian
@@ -38,12 +44,13 @@ class TransaksiSeeder extends Seeder
                 throw new \Exception('Tidak ada barang yang tersedia.');
             }
 
-            $tanggal_pembelian = Carbon::today()->subDays(rand(0, 30));
+            // Get random date from last 7 days
+            $tanggal_pembelian = $last7Days[array_rand($last7Days)]->copy();
 
             $pembelian = Pembelian::create([
                 'vendor_id' => $vendor->id,
                 'tanggal_pembelian' => $tanggal_pembelian,
-                'tanggal_masuk' => (rand(0, 1) ? now() : null),
+                'tanggal_masuk' => (rand(0, 1) ? $tanggal_pembelian->copy()->addHours(rand(1, 12)) : null),
                 'user_id' => $user_ids[array_rand($user_ids)],
             ]);
 
@@ -75,7 +82,13 @@ class TransaksiSeeder extends Seeder
     {
         $user_ids = [3, 4];
 
-        for ($i = 0; $i < 3; $i++) { // 3 transaksi penjualan
+        // Generate array of last 7 days
+        $last7Days = [];
+        for ($i = 0; $i < 7; $i++) {
+            $last7Days[] = Carbon::today()->subDays($i);
+        }
+
+        for ($i = 0; $i < 10; $i++) { // 10 transaksi penjualan
             $member = Member::inRandomOrder()->first();
             $member_id = $member ? $member->id : null;
 
@@ -84,7 +97,8 @@ class TransaksiSeeder extends Seeder
                 throw new \Exception('Tidak ada barang yang tersedia untuk penjualan.');
             }
 
-            $tanggal_penjualan = Carbon::today()->subDays(rand(0, 30));
+            // Get random date from last 7 days
+            $tanggal_penjualan = $last7Days[array_rand($last7Days)]->copy();
 
             $penjualan = Penjualan::create([
                 'member_id' => $member_id,
@@ -123,6 +137,6 @@ class TransaksiSeeder extends Seeder
             }
         }
 
-        echo "Seeder Penjualan selesai! (3 transaksi dibuat)\n";
+        echo "Seeder Penjualan selesai! (10 transaksi dibuat)\n";
     }
 }

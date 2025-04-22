@@ -33,10 +33,6 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
-    public function setPasswordAttribute($password)
-    {
-        $this->attributes['password'] = Hash::make($password);
-    }
 
     public function getJWTIdentifier()
     {
@@ -59,4 +55,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Member::class, 'user_id');
     }
+    public function penjualan()
+    {
+        return $this->hasMany(Penjualan::class, 'user_id');
+    }
+
 }

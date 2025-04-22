@@ -18,7 +18,7 @@ class Member extends Model
         'email',
         'alamat',
         'no_hp',
-        'password'
+        'total_point',
     ];
 
     /**
@@ -28,7 +28,11 @@ class Member extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
+    // Di dalam Model Member.php
+    public function historyVouchers()
+    {
+        return $this->hasMany(HistoryVoucher::class, 'member_id');
+    }
     /**
      * Relasi ke tabel pengajuan_barang (Pengajuan Barang oleh Member)
      */
@@ -36,4 +40,5 @@ class Member extends Model
     {
         return $this->hasMany(PengajuanBarang::class, 'member_id');
     }
+
 }

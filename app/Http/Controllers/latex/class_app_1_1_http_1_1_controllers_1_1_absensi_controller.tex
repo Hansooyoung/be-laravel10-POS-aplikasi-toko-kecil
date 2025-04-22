@@ -1,0 +1,218 @@
+\doxysection{Absensi\+Controller Class Reference}
+\hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller}{}\label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller}\index{AbsensiController@{AbsensiController}}
+Inheritance diagram for Absensi\+Controller\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_app_1_1_http_1_1_controllers_1_1_absensi_controller}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a689bc8e59cbc326b97b7e7fcad96ca3a}{\+\_\+\+\_\+construct}} (Export\+Service \$export\+Service)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_ab567a949f50e20ea3d95ad062a17e3c3}{index}} (Request \$request)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a9ef485163104597c12185b53cdacf638}{store}} (Request \$request)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_ae4914d07a9bbe4aede7a5dea759f6287}{show}} (\$id)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a41276dbb1faf05b35a1119d5da64e020}{update\+Jam\+Keluar}} (Request \$request, Absensi \$absensi)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_acaf7522f1347475162ae35b0ae9755fa}{update\+Status}} (Request \$request, Absensi \$absensi)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_ac1d6967624eb8957b75fe33b2a701bae}{update\+Absensi}} (Request \$request, Absensi \$absensi)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a726fa8a4b4b187b9ca32ba427aac8137}{destroy}} (\$id)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a5aaae361a7bf89630befc48b9e4fa64e}{export\+Absensi}} (Request \$request, \$format)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a4cf2f9073d7a995a4f5dcbca836685a8}{import\+Excel}} (Request \$request)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Controller untuk mengelola data absensi karyawan
+
+Menyediakan endpoint untuk\+:
+\begin{DoxyItemize}
+\item CRUD data absensi
+\item Update status dan jam keluar
+\item Export data ke Excel/\+PDF
+\item Import data dari Excel 
+\end{DoxyItemize}
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a689bc8e59cbc326b97b7e7fcad96ca3a}\index{AbsensiController@{AbsensiController}!\_\_construct@{\_\_construct}}
+\index{\_\_construct@{\_\_construct}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{\_\_construct()}{\_\_construct()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a689bc8e59cbc326b97b7e7fcad96ca3a} 
+\+\_\+\+\_\+construct (\begin{DoxyParamCaption}\item[{Export\+Service}]{\$export\+Service}{}\end{DoxyParamCaption})}
+
+Constructor untuk dependency injection Export\+Service
+
+
+\begin{DoxyParams}[1]{Parameters}
+Export\+Service & {\em \$export\+Service} & -\/ Service untuk menangani ekspor data \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a726fa8a4b4b187b9ca32ba427aac8137}\index{AbsensiController@{AbsensiController}!destroy@{destroy}}
+\index{destroy@{destroy}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{destroy()}{destroy()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a726fa8a4b4b187b9ca32ba427aac8137} 
+destroy (\begin{DoxyParamCaption}\item[{}]{\$id}{}\end{DoxyParamCaption})}
+
+Menghapus data absensi
+
+
+\begin{DoxyParams}[1]{Parameters}
+int & {\em \$id} & -\/ ID absensi yang akan dihapus \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response -\/ Response JSON hasil operasi 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a5aaae361a7bf89630befc48b9e4fa64e}\index{AbsensiController@{AbsensiController}!exportAbsensi@{exportAbsensi}}
+\index{exportAbsensi@{exportAbsensi}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{exportAbsensi()}{exportAbsensi()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a5aaae361a7bf89630befc48b9e4fa64e} 
+export\+Absensi (\begin{DoxyParamCaption}\item[{Request}]{\$request}{, }\item[{}]{\$format}{}\end{DoxyParamCaption})}
+
+Mengekspor data absensi ke format tertentu (Excel/\+PDF)
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & -\/ Objek request \\
+\hline
+string & {\em \$format} & -\/ Format ekspor (excel/pdf) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+mixed -\/ Hasil ekspor (file download) 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a4cf2f9073d7a995a4f5dcbca836685a8}\index{AbsensiController@{AbsensiController}!importExcel@{importExcel}}
+\index{importExcel@{importExcel}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{importExcel()}{importExcel()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a4cf2f9073d7a995a4f5dcbca836685a8} 
+import\+Excel (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Mengimpor data absensi dari file Excel
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & -\/ Objek request berisi file Excel \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response -\/ Response JSON hasil operasi 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_ab567a949f50e20ea3d95ad062a17e3c3}\index{AbsensiController@{AbsensiController}!index@{index}}
+\index{index@{index}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{index()}{index()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_ab567a949f50e20ea3d95ad062a17e3c3} 
+index (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Menampilkan daftar data absensi dengan pagination
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & -\/ Objek request yang mungkin berisi parameter pencarian \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response -\/ Response JSON berisi data absensi 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_ae4914d07a9bbe4aede7a5dea759f6287}\index{AbsensiController@{AbsensiController}!show@{show}}
+\index{show@{show}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{show()}{show()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_ae4914d07a9bbe4aede7a5dea759f6287} 
+show (\begin{DoxyParamCaption}\item[{}]{\$id}{}\end{DoxyParamCaption})}
+
+Menampilkan detail data absensi berdasarkan ID
+
+
+\begin{DoxyParams}[1]{Parameters}
+int & {\em \$id} & -\/ ID absensi yang dicari \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response -\/ Response JSON data absensi 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a9ef485163104597c12185b53cdacf638}\index{AbsensiController@{AbsensiController}!store@{store}}
+\index{store@{store}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{store()}{store()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a9ef485163104597c12185b53cdacf638} 
+store (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Menyimpan data absensi baru
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & -\/ Objek request berisi data absensi \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response -\/ Response JSON hasil operasi 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_ac1d6967624eb8957b75fe33b2a701bae}\index{AbsensiController@{AbsensiController}!updateAbsensi@{updateAbsensi}}
+\index{updateAbsensi@{updateAbsensi}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{updateAbsensi()}{updateAbsensi()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_ac1d6967624eb8957b75fe33b2a701bae} 
+update\+Absensi (\begin{DoxyParamCaption}\item[{Request}]{\$request}{, }\item[{Absensi}]{\$absensi}{}\end{DoxyParamCaption})}
+
+Mengupdate data absensi selain jam\+\_\+keluar
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & -\/ Objek request \\
+\hline
+Absensi & {\em \$absensi} & -\/ Model absensi yang akan diupdate \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response -\/ Response JSON hasil operasi 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a41276dbb1faf05b35a1119d5da64e020}\index{AbsensiController@{AbsensiController}!updateJamKeluar@{updateJamKeluar}}
+\index{updateJamKeluar@{updateJamKeluar}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{updateJamKeluar()}{updateJamKeluar()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_a41276dbb1faf05b35a1119d5da64e020} 
+update\+Jam\+Keluar (\begin{DoxyParamCaption}\item[{Request}]{\$request}{, }\item[{Absensi}]{\$absensi}{}\end{DoxyParamCaption})}
+
+Mengupdate jam keluar untuk absensi yang dipilih
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & -\/ Objek request \\
+\hline
+Absensi & {\em \$absensi} & -\/ Model absensi yang akan diupdate \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response -\/ Response JSON hasil operasi 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_acaf7522f1347475162ae35b0ae9755fa}\index{AbsensiController@{AbsensiController}!updateStatus@{updateStatus}}
+\index{updateStatus@{updateStatus}!AbsensiController@{AbsensiController}}
+\doxysubsubsection{\texorpdfstring{updateStatus()}{updateStatus()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_absensi_controller_acaf7522f1347475162ae35b0ae9755fa} 
+update\+Status (\begin{DoxyParamCaption}\item[{Request}]{\$request}{, }\item[{Absensi}]{\$absensi}{}\end{DoxyParamCaption})}
+
+Mengupdate status absensi (sakit/cuti)
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & -\/ Objek request \\
+\hline
+Absensi & {\em \$absensi} & -\/ Model absensi yang akan diupdate \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response -\/ Response JSON hasil operasi 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/\+ACER/\+Documents/\+Belajar Pemograman/\+Ujikom/be-\/laravel10-\/aplikasi-\/supermarket/app/\+Http/\+Controllers/Absensi\+Controller.\+php\end{DoxyCompactItemize}

@@ -1,0 +1,111 @@
+\doxysection{Diskon\+Controller Class Reference}
+\hypertarget{class_app_1_1_http_1_1_controllers_1_1_diskon_controller}{}\label{class_app_1_1_http_1_1_controllers_1_1_diskon_controller}\index{DiskonController@{DiskonController}}
+Inheritance diagram for Diskon\+Controller\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{class_app_1_1_http_1_1_controllers_1_1_diskon_controller}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_ab567a949f50e20ea3d95ad062a17e3c3}{index}} (Request \$request)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_a9ef485163104597c12185b53cdacf638}{store}} (Request \$request)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_ae4914d07a9bbe4aede7a5dea759f6287}{show}} (\$id)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_affb03cc19897a1800a0f411264d6c7cc}{update}} (Request \$request, \$id)
+\item 
+\mbox{\hyperlink{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_a726fa8a4b4b187b9ca32ba427aac8137}{destroy}} (\$id)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_a726fa8a4b4b187b9ca32ba427aac8137}\index{DiskonController@{DiskonController}!destroy@{destroy}}
+\index{destroy@{destroy}!DiskonController@{DiskonController}}
+\doxysubsubsection{\texorpdfstring{destroy()}{destroy()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_a726fa8a4b4b187b9ca32ba427aac8137} 
+destroy (\begin{DoxyParamCaption}\item[{}]{\$id}{}\end{DoxyParamCaption})}
+
+Delete a discount
+
+
+\begin{DoxyParams}[1]{Parameters}
+int & {\em \$id} & Discount ID \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Success or error message 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_ab567a949f50e20ea3d95ad062a17e3c3}\index{DiskonController@{DiskonController}!index@{index}}
+\index{index@{index}!DiskonController@{DiskonController}}
+\doxysubsubsection{\texorpdfstring{index()}{index()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_ab567a949f50e20ea3d95ad062a17e3c3} 
+index (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Get paginated list of discounts with optional search
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & HTTP request containing optional search parameter \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Paginated list of discounts 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_ae4914d07a9bbe4aede7a5dea759f6287}\index{DiskonController@{DiskonController}!show@{show}}
+\index{show@{show}!DiskonController@{DiskonController}}
+\doxysubsubsection{\texorpdfstring{show()}{show()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_ae4914d07a9bbe4aede7a5dea759f6287} 
+show (\begin{DoxyParamCaption}\item[{}]{\$id}{}\end{DoxyParamCaption})}
+
+Get specific discount details
+
+
+\begin{DoxyParams}[1]{Parameters}
+int & {\em \$id} & Discount ID \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Discount details or error 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_a9ef485163104597c12185b53cdacf638}\index{DiskonController@{DiskonController}!store@{store}}
+\index{store@{store}!DiskonController@{DiskonController}}
+\doxysubsubsection{\texorpdfstring{store()}{store()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_a9ef485163104597c12185b53cdacf638} 
+store (\begin{DoxyParamCaption}\item[{Request}]{\$request}{}\end{DoxyParamCaption})}
+
+Create a new discount
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & HTTP request containing discount data \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Created discount data 
+\end{DoxyReturn}
+\Hypertarget{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_affb03cc19897a1800a0f411264d6c7cc}\index{DiskonController@{DiskonController}!update@{update}}
+\index{update@{update}!DiskonController@{DiskonController}}
+\doxysubsubsection{\texorpdfstring{update()}{update()}}
+{\footnotesize\ttfamily \label{class_app_1_1_http_1_1_controllers_1_1_diskon_controller_affb03cc19897a1800a0f411264d6c7cc} 
+update (\begin{DoxyParamCaption}\item[{Request}]{\$request}{, }\item[{}]{\$id}{}\end{DoxyParamCaption})}
+
+Update existing discount
+
+
+\begin{DoxyParams}[1]{Parameters}
+Request & {\em \$request} & HTTP request with update data \\
+\hline
+Diskon & {\em \$diskon} & Discount model (route model binding) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\textbackslash{}\+Illuminate\textbackslash{}\+Http\textbackslash{}\+Json\+Response Updated discount data 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+C\+:/\+Users/\+ACER/\+Documents/\+Belajar Pemograman/\+Ujikom/be-\/laravel10-\/aplikasi-\/supermarket/app/\+Http/\+Controllers/Diskon\+Controller.\+php\end{DoxyCompactItemize}

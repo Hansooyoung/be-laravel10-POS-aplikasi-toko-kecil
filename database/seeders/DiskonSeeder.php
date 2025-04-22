@@ -16,7 +16,7 @@ class DiskonSeeder extends Seeder
     {
         Diskon::insert([
             [
-                'nama_diskon' => 'diskon 10 persen',
+                'nama_diskon' => 'Diskon 10%',
                 'jenis_diskon' => 'persen',
                 'nilai_diskon' => 10.00,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
@@ -25,7 +25,7 @@ class DiskonSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'nama_diskon' => 'potongan harga goceng',
+                'nama_diskon' => 'Potongan RP.5000',
                 'jenis_diskon' => 'nominal',
                 'nilai_diskon' => 5000.00,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
@@ -34,7 +34,7 @@ class DiskonSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'nama_diskon' => 'diskon 5 persen',
+                'nama_diskon' => 'Diskon 5%',
                 'jenis_diskon' => 'persen',
                 'nilai_diskon' => 5.00,
                 'tanggal_mulai' => Carbon::now()->subDays(10)->toDateString(),

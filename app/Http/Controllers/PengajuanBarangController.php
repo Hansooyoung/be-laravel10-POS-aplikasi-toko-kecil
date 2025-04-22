@@ -50,19 +50,19 @@ class PengajuanBarangController extends Controller
     }
 
 
-// === OOP: Private Method untuk menangani Export ===
-private function handleExport($data, $headers, $filename, $format, $title)
-{
-    if ($format === 'excel') {
-        return $this->exportService->exportToExcel($data, $filename, $headers);
-    }
+    // === OOP: Private Method untuk menangani Export ===
+    private function handleExport($data, $headers, $filename, $format, $title)
+    {
+        if ($format === 'excel') {
+            return $this->exportService->exportToExcel($data, $filename, $headers);
+        }
 
-    if ($format === 'pdf') {
-        return $this->exportService->exportToPDF($data, $filename, $headers, $title);
-    }
+        if ($format === 'pdf') {
+            return $this->exportService->exportToPDF($data, $filename, $headers, $title);
+        }
 
-    return response()->json(['message' => 'Format tidak didukung'], 400);
-}
+        return response()->json(['message' => 'Format tidak didukung'], 400);
+    }
 
     // === OOP: Method untuk Mengambil Data Pengajuan ===
     public function index(Request $request)
